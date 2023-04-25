@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>
+            Adding {{data['check']}}
+        </title>
+        <link href="/static/style.css" rel="spreadsheet">
+        <link href="https://www.firmus.com.sg/wp-content/uploads/2022/03/SK_196_edited_sq_trans-line.png" rel='icon'>
+    </head>
+
+    
+    <body>
+        {% include "header.html" %}
+        <br><br><br>
+        <form action="{{data['form_meta']['action']}}" method="{{data['form_meta']['method']}}" id="form">
+            <div class="container-1">
+                <h1>{{data['check'].upper()}}</h1>
+                <div class='container-box'>
+                    <div id='check-msg' class='highlight-red'></div>
+                    {% if data['path'] == 'confirm' %}
+                    <span class="highlight-green">Confirm inputted data.</span>
+                    <br><br>
+                    {% elif data['path'] == 'success' %}
+                    <span class="highlight-green">{{data['check'].title()}} successfully added.</span>
+                    <br><br>
+                    {% elif data['path'] == 'fail' %}
+                    <span class="highlight-red">{{data['check'].title()}} already in the database.</span>
+                    <br><br>
+                    {% endif %}
+                    {% for key, value in data['form_data'].items() %}
+                    <div class="grid">
+                        <div class='label'>
+                            <label for="{{key}}" name="{{key}}">{{key.replace("_", " ").title()}}:</label>
+                        </div>
+                        {% if data['path'] == 'success' %}
+                            <div class="input">
+                                <input id="{{key}}" type="{{data['form_type'][key]}}" name="{{key}}" value="{{value}}" disabled>
+                            </div>
+                        {% else %}
+                            <div class="input">
+                                <input id="{{key}}" type="{{data['form_type'][key]}}" name="{{key}}" value="{{value}}" required>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div align='center' class="submit">
+                        {% if data['path'] == 'success' %}
+                            <input type='submit' value="Add another {{data['check'].title()}}" id='submit'>
+                        {% else %}
+                            <input type='button' value="Submit" id='submit'>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </form>
+        {% include "footer.html" %}
+    </body>
+    <script>
+        document.getElementById('submit').addEventListener('click', check);
+        
+        function check() {
+            if ("{{data['check']}}" == 'act') {
+                var start = document.getElementById('start_date').value;
+                var end = document.getElementById('end_date').value;
+                if (start > end) {
+                    document.getElementById('check-msg').innerHTML = 'Start date must be before end date';
+                    document.getElementById('check-msg').style.marginBottom = "10px";
+                } else {
+                    document.getElementById('submit').type = 'submit'
+                };
+                
+            } else {
+                document.getElementById('submit').type = 'submit';
+            };
+        }
+    </script>
+</html>
