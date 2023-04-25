@@ -20,13 +20,6 @@ def index():
     '''
     return render_template("index.html")
 
-@app.route('/about')
-def about():
-    '''
-    Returns the about page at path "/about"
-    '''
-    return render_template("about.html")
-
 
 @app.route("/new_cca", methods = ['POST', 'GET'])
 def add_cca():
