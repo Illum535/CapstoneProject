@@ -28,10 +28,10 @@ form_type = {
 def add_data(path, type, form_data = None):
     data = {}
     paths = {
-        '': f'/new_{type}?confirm',
-        'confirm': f'/new_{type}?success',
-        'success': f'/new_{type}',
-        'fail': f'/new_{type}'
+        '': f'/add_{type}?confirm',
+        'confirm': f'/add_{type}?success',
+        'success': f'/add_{type}',
+        'fail': f'/add_{type}'
     }
 
     for key, act in paths.items():
@@ -52,4 +52,35 @@ def add_data(path, type, form_data = None):
     data['path'] = path
     data['form_type'] = form_type[type]
         
+    return data
+
+def view_data(type):
+    data = {}
+
+    data['check'] = type
+    data['data'] = [
+        {
+            'name': 'placeholder1',
+            'class': 'pc4'
+        },
+        {
+            'name': 'placeholder2',
+            'class': 'pc3'
+        },
+        {
+            'name': 'placeholder3',
+            'class': 'pc2'
+        },
+        {
+            'name': 'placeholder4',
+            'class': 'pc1'
+        },
+    ] #Replace with database function
+    header = {}
+    
+    for index, key in enumerate(data['data'][0].keys()):
+        header[index] = key
+        
+    data['header'] = header
+    
     return data
