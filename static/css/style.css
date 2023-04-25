@@ -1,5 +1,5 @@
 body {
-    font-family: Helvetica;
+    font-family: Verdana, sans-serif;
     margin: 0px;
     background-color: #171717;
     color: white;
@@ -251,4 +251,29 @@ label {
 
 .submit input:active {
     background: linear-gradient(to right, #ff0000 30%, #7a0000 100%);
+}
+
+.table-header {
+    text-align: center;
+    font-weight: bold;
+    background-image: linear-gradient(to right, #ff0000 30%, #7a0000 100%);
+    padding: 5px;
+    margin: 0px;
+    cursor: pointer;
+}
+
+.table-content {
+    text-align: center;
+    margin: 5px;
+}
+
+table {
+    border: #FF0000 solid 1px;
+    width: 100%;
+}
+
+.search {
+    background-color: #32353c;
+    color: white;
+    border: 1px #32353c;
 }

@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>View {{data['check']}}</title>
+        <link rel='stylesheet' href='static/css/style.css'>
+    </head>
+
+    <body>
+        {% include 'header.html' %}
+        <div class='container-1'>
+            <h1>{{data['check'].upper()}}</h1>
+            <div class='container-box'>
+                <input placeholder="Search" type='text' class='search' oninput="search(this.value)">
+                <select id="select">
+                    {% for count, key in data['header'].items() %}
+                    <option value="{{count}}">
+                        {{key.title()}}
+                    </option>
+                    {% endfor %}
+                </select>
+                <br><br>
+                <table id='table'>
+                    <tr>
+                    {% for count, key in data['header'].items() %}
+                            <td>
+                                <p class='table-header' id='{{key}}' onclick='sort({{count}}, "caret-{{key}}")'>
+                                    {{key.title()}} <i class="downcaret" id="caret-{{key}}"></i>
+                                </p>
+                            </td>
+                    {% endfor %}
+                    </tr>
+                    {% for record in data['data'] %}
+                        <tr>
+                            {% for value in record.values() %}
+                                <td>
+                                    <p class='table-content'>{{value}}</p>
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        {% include 'footer.html' %}
+    </body>
+    <script>
+        function search(key) {
+            var table, rows, n;
+            n = document.getElementById('select').value;
+            table = document.getElementById('table');
+            rows = table.rows;
+            for (i = 1; i < (rows.length); i++) {
+                text = rows[i].getElementsByClassName("table-content")[n].innerHTML;
+                
+                if (!(text.toLowerCase().includes(key.toLowerCase()))) {
+                    
+                    rows[i].style.visibility = "collapse";
+                    
+                } else if (rows[i].style.visibility == "collapse") {
+                    
+                    rows[i].style.visibility = "visible";
+                };
+            };
+        };
+        
+        function sort(n, key) {
+            var table, rows, before, after;
+            coll = document.getElementsByClassName('downcaret');
+            
+            for (i = 0; i < coll.length; i++) {
+                coll[i].style.transform = "rotate(45deg)"
+            };
+            
+            document.getElementById(key).style.transform = "rotate(-135deg) translateX(-3px) translateY(-3px)";
+
+            table = document.getElementById('table');
+            
+            for (i = 1; i < (table.rows.length - 1); i++) {
+                rows = table.rows;
+                
+                for (e = 1; e < (table.rows.length - i); e++) {
+                    
+                    before = rows[e].getElementsByTagName("TD")[n];
+                    after = rows[e + 1].getElementsByTagName("TD")[n];
+                    
+                    if (before.innerHTML.toLowerCase() > after.innerHTML.toLowerCase()) {
+                        
+                        rows[e].parentNode.insertBefore(rows[e + 1], rows[e]);
+                    };
+                };
+            };
+        };
+    </script>
+    
+</html>
