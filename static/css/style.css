@@ -1,0 +1,254 @@
+body {
+    font-family: Helvetica;
+    margin: 0px;
+    background-color: #171717;
+    color: white;
+    /* background-image: url("https://www.firmus.com.sg/wp-content/uploads/2022/03/SK_196_edited_sq_trans-line.png");*/
+    
+}
+
+.calign {
+    text-align: center
+}
+
+.ralign {
+    text-align: right;
+    
+}
+
+.highlight-green {
+    color: lightgreen;
+    font-weight: bold;
+}
+
+.highlight-red {
+    color: red;
+    font-weight: bold;
+}
+
+.mainbody {
+    margin-top: 15%;
+    margin-bottom: 10%;
+    font-size: 50px;
+    padding: 30px;
+}
+
+.footer {
+    display: block;
+    text-align: center;
+    background-color: #171a21;
+    width: 100%;
+    height: 50px;
+    position: fixed;
+    bottom: 0;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2) inset;
+}
+
+.footer a {
+    text-decoration: none;
+    display: block;
+    width: auto;
+    float: right;
+    height: 50px;
+    color: #b8b6b4;
+    padding-top: 30px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.footer a:hover {
+    color: white;
+    
+}
+
+.container {
+    width: 70%;
+    height: 60%;
+    margin: auto;
+}
+
+.skl {
+    float: left;
+}
+
+.container-1 {
+    width: 30%;
+    height: 20%;
+    margin: auto;
+    color: white;
+    
+}
+
+.container-1 h1{
+    color: white;
+    font-weight: 200;
+    
+}
+
+.container-box {
+    background-color: #181a21;
+    display: block;
+    border-radius: 5px;
+    padding: 25px;
+    margin: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 815px) {
+    .container-box {
+        background-color: rgba(0,0,0,0);
+        box-shadow: none;
+    }
+}
+
+@media (min-width: 815px) {
+    .container-box {
+        display: block;
+    }
+}
+    
+.grid {
+    display: grid;
+}
+
+.input {
+    display: grid;
+}
+
+
+.text-box {
+    display: block;
+    background-color: #181a21;
+    color: white;
+    padding: 25px;
+    border-radius: 5px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    float: right;
+    width: 50%;
+}
+
+.input input {
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #32353c;
+    border: 1px #32353c;
+    border-radius: 3px;
+    color: white;
+}
+
+label {
+    font-size: 16px;
+    color: #ff0000;
+    font-weight: 100;
+}
+
+.submit input {
+    width: 200px;
+    height: 50px;
+    font-size: 18px;
+    background: linear-gradient(to right, #ff0000 0%, #7a0000 100%);
+    outline: none;
+    border: none;
+    color: white;
+    margin: auto;
+    border-radius: 2px;
+    font-weight: bold;
+}
+
+.navbar {
+    top: 0;
+    width: 100%;
+    background-color: #171a21;
+    overflow: hidden;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.navbar a {
+    padding: 20px;
+    text-align: center;
+    float: left;
+    font-size: 20px;
+    text-decoration: none;
+    color: #b8b6b4;
+}
+
+
+.dropdown {
+    float: left;
+    overflow:hidden; 
+    background-color: #171a21;
+    text-align: center;
+    font-size: 20px;
+    width: auto;
+}
+
+.dropdown p {
+    padding-left: 20px;
+    padding-right: 20px;
+    color: #b8b6b4;
+}
+
+.downcaret {
+    border: solid #b8b6b4;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
+    margin-bottom: 3px;
+    margin-right: 5px;
+    transform: rotate(45deg);
+}
+
+.dropcontent {
+    display: none;
+    background-color: #171a21;
+    position: absolute;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    width: inherit;
+}
+
+.underline {
+    float: none;
+    display: block;
+    background-image: linear-gradient(to right, #ff0000 30%, #7a0000 100%);
+    width: inherit;
+    height: 5px;
+}
+
+.dropcontent a {
+    float: none;
+    display: block;
+    color: #b8b6b4;
+    text-align: left;
+    padding: 10px;
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    color: white;
+}
+
+
+.dropdown:hover .dropcontent{
+    display: block;
+}
+
+.dropcontent a:hover {
+    color: white;
+}
+
+.dropdown:hover .underline{
+    display: block;
+}
+
+.dropdown:hover p{
+    color: white;
+}
+
+.dropdown:hover .downcaret{
+    border-color: white;
+}
+
+.submit input:active {
+    background: linear-gradient(to right, #ff0000 30%, #7a0000 100%);
+}
