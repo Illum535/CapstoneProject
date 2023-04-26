@@ -52,11 +52,14 @@ def add_act():
 
 
 
-@app.route('/view_class')
+@app.route('/view_class', methods = ['GET'])
 def view_class():
     '''
     Returns the page at path '/view_class' to show all classes
     '''
+    if request.args:
+        return render_template('view.html', data = view_data('class', list(request.args)[0]))
+        
     return render_template('view.html', data = view_data('class'))
 
 @app.route('/view_cca')

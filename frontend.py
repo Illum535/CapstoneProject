@@ -20,14 +20,14 @@ add_forms = {
 
 update_forms = {
     'cca': {
-        'student_name': '',
         'cca_name': '',
+        'student_name': '',
         'role': 'Member'
     },
     
     'activity': {
-        'student_name': '',
         'activity_description': '',
+        'student_name': '',
         'category': act_cat,
         'role': 'Participant',
         'award': '',
@@ -108,34 +108,19 @@ def add_data(update_or_add, path, type, form_data = None):
     
     return data
 
-def view_data(type):
+def view_data(type, specific = ''):
     data = {}
 
     data['check'] = type
-    data['data'] = [
-        {
-            'name': 'placeholder1',
-            'class': 'pc4'
-        },
-        {
-            'name': 'placeholder2',
-            'class': 'pc3'
-        },
-        {
-            'name': 'placeholder3',
-            'class': 'pc2'
-        },
-        {
-            'name': 'placeholder4',
-            'class': 'pc1'
-        },
-    ] #Replace with database function
+    data['specific'] = specific
+        
+    data['data'] = [{'name': f'placeholder{i}', 'age':f'{100-i}'} for i in range(100)] #Replace with database function
     header = {}
     
     for index, key in enumerate(data['data'][0].keys()):
         header[index] = key
         
     data['header'] = header
-    
+    data['main_header'] = list(header.values())[0]
     return data
 
