@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>
-            Adding {{data['check']}}
+            {{data['page_type'].title()}} {{data['check']}}
         </title>
         <link href="/static/style.css" rel="spreadsheet">
         <link href="https://www.firmus.com.sg/wp-content/uploads/2022/03/SK_196_edited_sq_trans-line.png" rel='icon'>
@@ -17,16 +17,23 @@
                 <h1>{{data['check'].upper()}}</h1>
                 <div class='container-box'>
                     <div id='check-msg' class='highlight-red'></div>
+                    
                     {% if data['path'] == 'confirm' %}
                     <span class="highlight-green">Confirm inputted data.</span>
                     <br><br>
                     {% elif data['path'] == 'success' %}
-                    <span class="highlight-green">{{data['check'].title()}} successfully added.</span>
-                    <br><br>
+                        {% if data['page_type'] == 'add' %}
+                        <span class="highlight-green">{{data['check'].title()}} successfully added.</span>
+                        <br><br>
+                        {% elif data['page_type'] == 'update' %}
+                        <span class="highlight-green">{{data['check'].title()}} successfully updated.</span>
+                        <br><br>
+                        {% endif %}
                     {% elif data['path'] == 'fail' %}
                     <span class="highlight-red">{{data['check'].title()}} already in the database.</span>
                     <br><br>
                     {% endif %}
+                    
                     {% for key, value in data['form_data'].items() %}
                     <div class="grid">
                         <div class='label'>
@@ -34,22 +41,46 @@
                         </div>
                         {% if data['path'] == 'success' %}
                             <div class="input">
-                                <input id="{{key}}" type="{{data['form_type'][key]}}" name="{{key}}" value="{{value}}" disabled>
+                                {% if data['form_type'][key] == 'radio' %}
+                                    <span>{{data['checked'].title()}}</span>
+                                {% else %}
+                                    <span>{{value.title()}}</span>
+                                {% endif %}
                             </div>
                         {% else %}
-                            <div class="input">
-                                <input id="{{key}}" type="{{data['form_type'][key]}}" name="{{key}}" value="{{value}}" required>
-                            </div>
+                            {% if data['form_type'][key] == 'radio' %}
+                                <div class='radio'>
+                                {% for option in value %}
+                                    {% if data['path'] == 'confirm' and data['checked'] == option %}
+                                        <input class='radio' id="{{option}}" type="{{data['form_type'][key]}}" name="{{key}}" value="{{option}}" checked>
+                                    {% else %}
+                                        <input class='radio' id="{{option}}" type="{{data['form_type'][key]}}" name="{{key}}" value="{{option}}" required>
+                                    {% endif %}
+                                    <label for="{{option}}">{{option.title()}}</label>
+                                {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="input">
+                                    <input id="{{key}}" type="{{data['form_type'][key]}}" name="{{key}}" value="{{value}}" required>
+                                </div>
+                            {% endif %}
                         {% endif %}
                     </div>
+                    <br>
                     {% endfor %}
+                    
                     <div align='center' class="submit">
                         {% if data['path'] == 'success' %}
-                            <input type='submit' value="Add another {{data['check'].title()}}" id='submit'>
+                            {% if data['page_type'] == 'add' %}
+                                <input type='submit' value="Add another {{data['check'].title()}}" id='submit'>
+                            {% elif data['page_type'] == 'update' %}
+                                <input type='submit' value="Update another {{data['check'].title()}}" id='submit'>
+                            {% endif %}
                         {% else %}
                             <input type='button' value="Submit" id='submit'>
                         {% endif %}
                     </div>
+                    
                 </div>
             </div>
         </form>
@@ -59,7 +90,7 @@
         document.getElementById('submit').addEventListener('click', check);
         
         function check() {
-            if ("{{data['check']}}" == 'act') {
+            if ("{{data['check']}}" == 'activity' && "{{data['page_type']}}" == 'add') {
                 var start = document.getElementById('start_date').value;
                 var end = document.getElementById('end_date').value;
                 if (start > end) {
