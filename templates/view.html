@@ -9,7 +9,7 @@
     <body>
         {% include 'header.html' %}
         <div class='container-1'>
-            <h1>{{data['check'].upper()}}</h1>
+            <h1>{{data['check'].upper()}} {{data['specific'].upper()}}</h1>
             <div class='container-box'>
                 <input placeholder="Search" type='text' class='search' oninput="search(this.value)">
                 <select id="select">
@@ -31,7 +31,7 @@
                     {% endfor %}
                     </tr>
                     {% for record in data['data'] %}
-                        <tr>
+                        <tr id="{{record[data['main_header']]}}" onclick=go_to_url("{{record[data['main_header']]}}")>
                             {% for value in record.values() %}
                                 <td>
                                     <p class='table-content'>{{value}}</p>
@@ -45,6 +45,10 @@
         {% include 'footer.html' %}
     </body>
     <script>
+        function go_to_url(value) {
+            window.location = "/view_{{data['check']}}?" + value;
+        };
+        
         function search(key) { /** Linear search **/
             var table, rows, search_by;
             search_by = document.getElementById('select').value; /**Value for which column to search by**/
@@ -65,7 +69,7 @@
         };
         
         function sort(n, key) { /** Bubble Sort **/
-            var table, rows, before, after, no_swaps;
+            var table, rows, before, after, no_swaps, coll;
             coll = document.getElementsByClassName('downcaret');
             
             for (i = 0; i < coll.length; i++) {
@@ -82,12 +86,23 @@
                 
                 for (e = 1; e < (table.rows.length - i); e++) {
                     
-                    before = rows[e].getElementsByTagName("TD")[n];
-                    after = rows[e + 1].getElementsByTagName("TD")[n];
+                    before = rows[e].getElementsByTagName("P")[n].innerHTML;
+                    after = rows[e + 1].getElementsByTagName("P")[n].innerHTML;
+
                     
-                    if (before.innerHTML.toLowerCase() > after.innerHTML.toLowerCase()) {
-                        no_swaps = false;
-                        rows[e].parentNode.insertBefore(rows[e + 1], rows[e]);
+                    if (!isNaN(Number(before))) { /** Sort by number is possible **/
+                        
+                        before = Number(before);
+                        after = Number(after);
+                        if (before > after) {
+                            no_swaps = false;
+                            rows[e].parentNode.insertBefore(rows[e + 1], rows[e]);
+                        };
+                        
+                    } else if (before.toLowerCase() > after.toLowerCase()) { /** sort by character **/
+                            no_swaps = false;
+                            rows[e].parentNode.insertBefore(rows[e + 1], rows[e]);
+
                     };
                 };
 
