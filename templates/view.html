@@ -3,6 +3,7 @@
     <head>
         <title>View {{data['check']}}</title>
         <link rel='stylesheet' href='static/css/style.css'>
+        <link href="https://www.firmus.com.sg/wp-content/uploads/2022/03/SK_196_edited_sq_trans-line.png" rel='icon'>
     </head>
 
     <body>
@@ -22,9 +23,9 @@
                 <table id='table'>
                     <tr>
                     {% for count, key in data['header'].items() %}
-                            <td>
-                                <p class='table-header' id='{{key}}' onclick='sort({{count}}, "caret-{{key}}")'>
-                                    {{key.title()}} <i class="downcaret" id="caret-{{key}}"></i>
+                            <td class='table-header' onclick='sort({{count}}, "caret-{{key}}")'>
+                                <p id='{{key}}'>
+                                    {{key.title()}} <i class="downcaret" id="caret-{{key}}" style="border-color: white"></i>
                                 </p>
                             </td>
                     {% endfor %}
@@ -44,27 +45,27 @@
         {% include 'footer.html' %}
     </body>
     <script>
-        function search(key) {
-            var table, rows, n;
-            n = document.getElementById('select').value;
+        function search(key) { /** Linear search **/
+            var table, rows, search_by;
+            search_by = document.getElementById('select').value; /**Value for which column to search by**/
             table = document.getElementById('table');
             rows = table.rows;
-            for (i = 1; i < (rows.length); i++) {
-                text = rows[i].getElementsByClassName("table-content")[n].innerHTML;
+            for (i = 1; i < (rows.length); i++) { /**Iterates through table content**/
+                text = rows[i].getElementsByClassName("table-content")[search_by].innerHTML;
                 
-                if (!(text.toLowerCase().includes(key.toLowerCase()))) {
+                if (!(text.toLowerCase().includes(key.toLowerCase()))) { /**Checks if search value is in table content**/
                     
-                    rows[i].style.visibility = "collapse";
+                    rows[i].style.visibility = "collapse"; /**Collapses table row if does not fit search **/
                     
                 } else if (rows[i].style.visibility == "collapse") {
                     
-                    rows[i].style.visibility = "visible";
+                    rows[i].style.visibility = "visible"; /**Opens table row if previously collapsed and fits search **/
                 };
             };
         };
         
-        function sort(n, key) {
-            var table, rows, before, after;
+        function sort(n, key) { /** Bubble Sort **/
+            var table, rows, before, after, no_swaps;
             coll = document.getElementsByClassName('downcaret');
             
             for (i = 0; i < coll.length; i++) {
@@ -77,6 +78,7 @@
             
             for (i = 1; i < (table.rows.length - 1); i++) {
                 rows = table.rows;
+                no_swaps = true;
                 
                 for (e = 1; e < (table.rows.length - i); e++) {
                     
@@ -84,9 +86,13 @@
                     after = rows[e + 1].getElementsByTagName("TD")[n];
                     
                     if (before.innerHTML.toLowerCase() > after.innerHTML.toLowerCase()) {
-                        
+                        no_swaps = false;
                         rows[e].parentNode.insertBefore(rows[e + 1], rows[e]);
                     };
+                };
+
+                if (no_swaps) {
+                  break;  
                 };
             };
         };
