@@ -1,3 +1,44 @@
+from storage import ActivityCollection, CCACollection
+
+act_coll = ActivityCollection()
+cca_coll = CCACollection()
+coll = {
+    'activity': act_coll,
+    'cca': cca_coll
+}
+
+cca_act_class_ext = ['students']
+
+ext_headers = {
+    'activity': cca_act_class_ext,
+    'cca': cca_act_class_ext,
+    'class': cca_act_class_ext,
+    'student': [
+        'ccas',
+        'activities',
+        'subjects'
+    ]
+}
+
+
+act_header = [
+    'name',
+    'description',
+    'start_date',
+    'end_date'
+]
+
+cca_header = [
+    'name',
+    'type'
+]
+
+headers = {
+    'activity': act_header,
+    'cca': cca_header
+}
+
+
 act_cat = [
             'achievement',
             'enrichment',
@@ -115,8 +156,22 @@ def view_data(type, specific = ''):
 
     data['check'] = type
     data['specific'] = specific
-        
-    data['data'] = [{'name': f'placeholder{i}', 'age':f'{100-i}'} for i in range(100)] #Replace with database function
+    data['data'] = []
+    records = coll[type].view_all()
+    header = headers[type]
+    for record in records:
+        record = dict(zip(header, record))
+        main = list(record.values())[0]
+        for key, value in ext_headers.items():
+            if key == type:
+                for extra in value:
+                    record[extra] = [f'View {extra}', f'/view_{type}?{main}']
+                break
+                
+        data['data'].append(record)
+
+    data['extra'] = value
+    
     header = {}
     
     for index, key in enumerate(data['data'][0].keys()):
@@ -124,5 +179,6 @@ def view_data(type, specific = ''):
         
     data['header'] = header
     data['main_header'] = list(header.values())[0]
+
     return data
 

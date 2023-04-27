@@ -8,7 +8,7 @@
 
     <body>
         {% include 'header.html' %}
-        <div class='container-1'>
+        <div class='container'>
             <h1>{{data['check'].upper()}} {{data['specific'].upper()}}</h1>
             <div class='container-box'>
                 <span>Search: </span>
@@ -17,7 +17,7 @@
                 <select id="select">
                     {% for count, key in data['header'].items() %}
                     <option value="{{count}}">
-                        {{key.title()}}
+                        {{key.replace('_', ' ').title()}}
                     </option>
                     {% endfor %}
                 </select>
@@ -27,16 +27,20 @@
                     {% for count, key in data['header'].items() %}
                             <td class='table-header' onclick='sort({{count}}, "caret-{{key}}")'>
                                 <p id='{{key}}'>
-                                    {{key.title()}} <i class="downcaret" id="caret-{{key}}" style="border-color: white"></i>
+                                    {{key.replace('_', ' ').title()}} <i class="downcaret" id="caret-{{key}}" style="border-color: white"></i>
                                 </p>
                             </td>
                     {% endfor %}
                     </tr>
                     {% for record in data['data'] %}
-                        <tr id="{{record[data['main_header']]}}" onclick=go_to_url("{{record[data['main_header']]}}")>
-                            {% for value in record.values() %}
+                        <tr>
+                            {% for key, value in record.items() %}
                                 <td>
-                                    <p class='table-content'>{{value}}</p>
+                                    {% if key in data['extra'] %}
+                                        <a class='table-content' href="{{value[1]}}">{{value[0]}}</a>
+                                    {% else %}
+                                        <p class='table-content'>{{value}}</p>
+                                    {% endif %}
                                 </td>
                             {% endfor %}
                         </tr>
@@ -47,9 +51,6 @@
         {% include 'footer.html' %}
     </body>
     <script>
-        function go_to_url(value) {
-            window.location = "/view_{{data['check']}}?" + value;
-        };
         
         function search(key) { /** Linear search **/
             var table, rows, search_by;
