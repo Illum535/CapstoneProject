@@ -56,15 +56,18 @@ class Collection:
         c = conn.cursor()
         VIEW = f"""
             SELECT * FROM {self._tblname} 
-            WHERE 'Name'= ?;
+            WHERE "Name"=?;
         """
         val = (name,)
         c.execute(VIEW, val)
         result = c.fetchone()
-        if result == ():
+        if result == None:
             return 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
         conn.commit()
         conn.close()
+        result = list(result)
+        result.pop(0)
+        result = tuple(result)
         return result
 
     
@@ -101,7 +104,7 @@ class Collection:
             query = f"""UPDATE {self._tblname} SET
                         {keys[0]} = {details[0]}
                         {keys[1]} = {details[1]}
-                        WHERE 'Name' = ?
+                        WHERE "Name" = ?
                         ;"""
         else:
             query = f"""UPDATE {self._tblname} SET
@@ -109,7 +112,7 @@ class Collection:
                         {keys[1]} = {details[1]}
                         {keys[2]} = {details[2]}
                         {keys[3]} = {details[3]}
-                        WHERE 'Name' = ?
+                        WHERE "Name" = ?
                         ;"""
         val = (name,)
         c.execute(query, val)
