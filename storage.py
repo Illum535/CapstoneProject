@@ -10,6 +10,8 @@ class Collection:
     add_record(self, record) - Checks whether CCA/activity is present in the collection before adding the record into the table
     
     view_record(self, name) - Returns the student's class in the collection with the corresponding name, if present
+
+    view_all(self) - Returns all records in the specified table
     
     edit_record(self, name, record) - Replaces the record with corresponding name with new record, if present
     """
@@ -24,14 +26,8 @@ class Collection:
         c = conn.cursor()
         params = tuple(record.values())
         name = params[0]
-        VIEW = f"""
-            SELECT * FROM {self._tblname} 
-            WHERE 'Name'= ?;
-        """
-        val = (name,)
-        c.execute(VIEW, val)
-        result = c.fetchone()
-        if result == ():
+        check = self.view_record(name)
+        if check == 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA':
 
             if self._tblname == 'CCA':
                 QUERY = f"""
@@ -42,7 +38,7 @@ class Collection:
             else:
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
-                    VALUES (?, ?, ?);        
+                    VALUES (?, ?, ?, ?);        
                 """
         
             c.execute(QUERY, params)
@@ -71,6 +67,22 @@ class Collection:
         conn.close()
         return result
 
+    
+    def view_all(self):
+        conn = sqlite3.connect(self._dbname)
+        c = conn.cursor()
+        VIEW = f"""
+            SELECT * FROM {self._tblname};
+        """
+        c.execute(VIEW)
+        result = c.fetchall()
+        for i, x in enumerate(result):
+            x = list(x)
+            x.pop(0)
+            x = tuple(x)
+            result[i] = x
+        return result
+
 
     
 
@@ -96,6 +108,7 @@ class Collection:
                         {keys[0]} = {details[0]}
                         {keys[1]} = {details[1]}
                         {keys[2]} = {details[2]}
+                        {keys[3]} = {details[3]}
                         WHERE 'Name' = ?
                         ;"""
         val = (name,)
@@ -106,9 +119,9 @@ class Collection:
         
 class ActivityCollection(Collection):
     def __init__(self):
-        super().__init__('capstone.db', 'Activity')
+        super().__init__('capstoneV5.db', 'Activity')
 
 
 class CCACollection(Collection):
     def __init__(self):
-        super().__init__('capstone.db', 'CCA')
+        super().__init__('capstoneV5.db', 'CCA')
