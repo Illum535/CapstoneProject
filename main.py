@@ -67,6 +67,9 @@ def view_cca():
     '''
     Returns the page at path '/view_cca' to show all ccas
     '''
+    if request.args:
+        return render_template('view.html', data = view_data('cca', list(request.args)[0]))
+        
     return render_template('view.html', data = view_data('cca'))
 
 @app.route('/view_activity')
@@ -74,6 +77,9 @@ def view_act():
     '''
     Returns the page at path '/view_activity' to show all activities
     '''
+    if request.args:
+        return render_template('view.html', data = view_data('activity', list(request.args)[0]))
+        
     return render_template('view.html', data = view_data('activity'))
 
 

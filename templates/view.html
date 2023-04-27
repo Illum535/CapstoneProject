@@ -11,7 +11,9 @@
         <div class='container-1'>
             <h1>{{data['check'].upper()}} {{data['specific'].upper()}}</h1>
             <div class='container-box'>
+                <span>Search: </span>
                 <input placeholder="Search" type='text' class='search' oninput="search(this.value)">
+                <span>Search by: </span>
                 <select id="select">
                     {% for count, key in data['header'].items() %}
                     <option value="{{count}}">

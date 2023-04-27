@@ -12,6 +12,7 @@ add_forms = {
     },
     
     'activity': {
+        'name': '',
         'start_date': '',
         'end_date': '',
         'description': ''
@@ -26,7 +27,7 @@ update_forms = {
     },
     
     'activity': {
-        'activity_description': '',
+        'name': '',
         'student_name': '',
         'category': act_cat,
         'role': 'Participant',
@@ -42,6 +43,7 @@ add_form_type = {
     },
     
     'activity': {
+        'name': 'text',
         'start_date': 'date',
         'end_date': 'date',
         'description': 'text'
@@ -57,7 +59,7 @@ update_form_type = {
     
     'activity': {
         'student_name': 'text',
-        'activity_description': 'text',
+        'activity_name': 'text',
         'category': 'radio',
         'role': 'text',
         'award': 'text',
