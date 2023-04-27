@@ -9,43 +9,71 @@
     <body>
         {% include 'header.html' %}
         <div class='container'>
-            <h1>{{data['check'].upper()}} {{data['specific'].upper()}}</h1>
+            <h1>{{data['check'].upper()}} {{data['main'].upper()}} {{data['foreign'].upper()}}</h1>
             <div class='container-box'>
                 <span>Search: </span>
-                <input placeholder="Search" type='text' class='search' oninput="search(this.value)">
-                <span>Search by: </span>
-                <select id="select">
-                    {% for count, key in data['header'].items() %}
-                    <option value="{{count}}">
-                        {{key.replace('_', ' ').title()}}
-                    </option>
-                    {% endfor %}
-                </select>
-                <br><br>
-                <table id='table'>
-                    <tr>
-                    {% for count, key in data['header'].items() %}
-                            <td class='table-header' onclick='sort({{count}}, "caret-{{key}}")'>
-                                <p id='{{key}}'>
-                                    {{key.replace('_', ' ').title()}} <i class="downcaret" id="caret-{{key}}" style="border-color: white"></i>
-                                </p>
-                            </td>
-                    {% endfor %}
-                    </tr>
-                    {% for record in data['data'] %}
+                    <input placeholder="Search" type='text' class='search' oninput="search(this.value)">
+                    <span>Search by: </span>
+                    <select id="select">
+                        {% for count, key in data['header'].items() %}
+                            {% if key not in data['extra'] %}
+                            <option value="{{count}}">
+                                {{key.replace('_', ' ').title()}}
+                            </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                {% if not data['main'] %}
+                    <br><br>
+                    <table id='table'>
                         <tr>
-                            {% for key, value in record.items() %}
-                                <td>
-                                    {% if key in data['extra'] %}
-                                        <a class='table-content' href="{{value[1]}}">{{value[0]}}</a>
-                                    {% else %}
-                                        <p class='table-content'>{{value}}</p>
-                                    {% endif %}
+                        {% for count, key in data['header'].items() %}
+                                <td class='table-header' onclick='sort({{count}}, "caret-{{key}}")'>
+                                    <p id='{{key}}'>
+                                        {{key.replace('_', ' ').title()}} <i class="downcaret" id="caret-{{key}}" style="border-color: white"></i>
+                                    </p>
+                                </td>
+                        {% endfor %}
+                        </tr>
+                        {% for record in data['data'] %}
+                            <tr>
+                                {% for key, value in record.items() %}
+                                    <td>
+                                        {% if key in data['extra'] %}
+                                            <a class='table-content' href="{{value[1]}}">{{value[0]}}</a>
+                                        {% else %}
+                                            <p class='table-content'>{{value}}</p>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    {% for header, value in data['data'].items() %}
+                        <p>{{header.replace('_', ' ').title()}}: {{value}}</p>
+                    {% endfor %}
+                    <table id='table'>
+                        <tr>
+                            {% for count, header in data['header'].items() %}
+                                <td class='table-header' onclick='sort({{count}}, "caret-{{header}}")'>
+                                    <p id="{{header}}">
+                                        {{header.title()}} <i class="downcaret" id="caret-{{header}}" style="border-color: white"></i>
+                                    </p>
                                 </td>
                             {% endfor %}
                         </tr>
-                    {% endfor %}
-                </table>
+                        {% for record in data['records'] %}
+                            <tr>
+                                {% for value in record %}
+                                    <td>
+                                        <p class='table-content'>{{value}}</p>
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% endif %}
             </div>
         </div>
         {% include 'footer.html' %}

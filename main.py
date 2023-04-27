@@ -52,13 +52,23 @@ def add_act():
 
 
 
+@app.route('/view_student', methods = ['GET'])
+def view_student():
+    '''
+    Returns the page at path '/view_student' to show all students
+    '''
+    if request.args:
+        return render_template('view.html', data = view_data('student', list(request.args)[0], list(request.args)[1]))
+        
+    return render_template('view.html', data = view_data('student'))
+
 @app.route('/view_class', methods = ['GET'])
 def view_class():
     '''
     Returns the page at path '/view_class' to show all classes
     '''
     if request.args:
-        return render_template('view.html', data = view_data('class', list(request.args)[0]))
+        return render_template('view.html', data = view_data('class', list(request.args)[0], list(request.args)[1]))
         
     return render_template('view.html', data = view_data('class'))
 
@@ -68,7 +78,7 @@ def view_cca():
     Returns the page at path '/view_cca' to show all ccas
     '''
     if request.args:
-        return render_template('view.html', data = view_data('cca', list(request.args)[0]))
+        return render_template('view.html', data = view_data('cca', list(request.args)[0], list(request.args)[1]))
         
     return render_template('view.html', data = view_data('cca'))
 
@@ -78,7 +88,7 @@ def view_act():
     Returns the page at path '/view_activity' to show all activities
     '''
     if request.args:
-        return render_template('view.html', data = view_data('activity', list(request.args)[0]))
+        return render_template('view.html', data = view_data('activity', list(request.args)[0], list(request.args)[1]))
         
     return render_template('view.html', data = view_data('activity'))
 

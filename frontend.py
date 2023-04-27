@@ -1,17 +1,22 @@
-from storage import ActivityCollection, CCACollection
+from storage import *
 
-act_coll = ActivityCollection()
-cca_coll = CCACollection()
 coll = {
-    'activity': act_coll,
-    'cca': cca_coll
+    'activity': ActivityCollection(),
+    'cca': CCACollection(),
+    'class': ClassCollection(),
+    'student': StudentCollection(),
+    'studentclass': StudentClassCollection(),
+    'studentcca': StudentCCACollection(),
+    'studentactivity': StudentActivityCollection(),
+    'studentsubject': StudentSubjectCollection(),
+    'activitycca': CCAActivityCollection()
 }
 
 cca_act_class_ext = ['students']
 
 ext_headers = {
     'activity': cca_act_class_ext,
-    'cca': cca_act_class_ext,
+    'cca': cca_act_class_ext + ['activities'],
     'class': cca_act_class_ext,
     'student': [
         'ccas',
@@ -28,14 +33,50 @@ act_header = [
     'end_date'
 ]
 
+class_header = [
+    'name',
+    'level'
+]
+
 cca_header = [
     'name',
     'type'
 ]
 
+student_header = [
+    'name',
+    'age',
+    'year_enrolled',
+    'graduating_year'
+]
+
+subject_header = [
+    'name',
+    'level'
+]
+
+studentcca_header = [
+    'role'
+]
+
+studentactivity_header = [
+    'category',
+    'role',
+    'award',
+    'hours'
+]
+
 headers = {
     'activity': act_header,
-    'cca': cca_header
+    'cca': cca_header,
+    'class': class_header,
+    'student': student_header,
+    'subject_header': subject_header,
+    'studentclass': [],
+    'studentcca': studentcca_header,
+    'studentactivity': studentactivity_header,
+    'studentsubject': [],
+    'activitycca': []
 }
 
 
@@ -151,34 +192,82 @@ def add_data(update_or_add, path, type, form_data = None):
     
     return data
 
-def view_data(type, specific = ''):
+def view_data(type, main_table = '', foreign_table = ''):
     data = {}
-
+    foreign_table_names = {
+        'students': 'student',
+        'activities': 'activity',
+        'ccas': 'cca',
+        'subjects': 'subject',
+    }
+    
+    
     data['check'] = type
-    data['specific'] = specific
+    data['main'] = main_table
+    data['foreign'] = foreign_table
     data['data'] = []
-    records = coll[type].view_all()
-    header = headers[type]
-    for record in records:
-        record = dict(zip(header, record))
-        main = list(record.values())[0]
-        for key, value in ext_headers.items():
-            if key == type:
-                for extra in value:
-                    record[extra] = [f'View {extra}', f'/view_{type}?{main}']
-                break
-                
-        data['data'].append(record)
+    
+    if foreign_table:
+        main_record = coll[type].view_record(main_table)
+        main_id = main_record[0]
 
-    data['extra'] = value
-    
-    header = {}
-    
-    for index, key in enumerate(data['data'][0].keys()):
-        header[index] = key
+        main_record = dict(zip(headers[type], main_record))
         
-    data['header'] = header
-    data['main_header'] = list(header.values())[0]
+        foreign_table = foreign_table_names[foreign_table]
+        if type == 'student':
+            data['header'] = dict(enumerate(['name'] + headers[f"{type}{foreign_table}"]))
+            records = coll[f"{type}{foreign_table}"].view_all(headers[f"{type}{foreign_table}"])
+            index = 0 
+        
+        else:
+            data['header'] = dict(enumerate(['name'] + headers[f"{foreign_table}{type}"]))
+            records = coll[f"{foreign_table}{type}"].view_all(headers[f"{foreign_table}{type}"])
+            index = 1
+        
+        for key, value in foreign_table_names.items():
+            if value == type:
+                type = key
+            
+        used_records = []
+        for record in records:
+            if record[index] == main_id:
+                record = list(record)
+                record.pop(index)
+                used_records.append(record)
+
+        
+        data['data'] = main_record
+        data['records'] = used_records
+        data['extra'] = []
+    
+    else:
+        if type != 'student':
+            header = headers[type]
+            records = coll[type].view_all()
+        else:
+            header = ['name', 'class']
+            records = coll['studentclass'].view_all(headers['studentclass'])
+        
+        for record in records:
+            record = dict(zip(header, record))
+            main = list(record.values())[0]
+            for key, value in ext_headers.items():
+                if key == type:
+                    for extra in value:
+                        record[extra] = [f'View {extra}', f'/view_{type}?{main}&{extra}']
+                    break
+                
+            data['data'].append(record)
+
+            data['extra'] = value
+            
+            header = {}
+            
+            for index, key in enumerate(data['data'][0].keys()):
+                header[index] = key
+                
+            data['header'] = header
+            data['main_header'] = list(header.values())[0]
 
     return data
 

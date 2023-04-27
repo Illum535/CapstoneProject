@@ -7,6 +7,10 @@ body {
     
 }
 
+a {
+    color: white;
+}
+
 .calign {
     text-align: center
 }
@@ -293,6 +297,7 @@ body {
     cursor: pointer;
     color: white;
 }
+
 
 table {
     border-collapse: collapse;
