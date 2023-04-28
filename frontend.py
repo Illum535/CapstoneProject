@@ -5,11 +5,11 @@ coll = {
     'cca': CCACollection(),
     'class': ClassCollection(),
     'student': StudentCollection(),
-    'studentclass': StudentClassCollection(),
-    'studentcca': StudentCCACollection(),
-    'studentactivity': StudentActivityCollection(),
-    'studentsubject': StudentSubjectCollection(),
-    'activitycca': CCAActivityCollection()
+    # 'studentclass': StudentClassCollection(),
+    # 'studentcca': StudentCCACollection(),
+    # 'studentactivity': StudentActivityCollection(),
+    # 'studentsubject': StudentSubjectCollection(),
+    # 'activitycca': CCAActivityCollection()
 }
 
 cca_act_class_ext = ['students']
@@ -25,100 +25,32 @@ ext_headers = {
     ]
 }
 
-
-act_header = [
-    'name',
-    'description',
-    'start_date',
-    'end_date'
-]
-
-class_header = [
-    'name',
-    'level'
-]
-
-cca_header = [
-    'name',
-    'type'
-]
-
-student_header = [
-    'name',
-    'age',
-    'year_enrolled',
-    'graduating_year'
-]
-
-subject_header = [
-    'name',
-    'level'
-]
-
-studentcca_header = [
-    'role'
-]
-
-studentactivity_header = [
-    'category',
-    'role',
-    'award',
-    'hours'
-]
-
-headers = {
-    'activity': act_header,
-    'cca': cca_header,
-    'class': class_header,
-    'student': student_header,
-    'subject_header': subject_header,
-    'studentclass': [],
-    'studentcca': studentcca_header,
-    'studentactivity': studentactivity_header,
-    'studentsubject': [],
-    'activitycca': []
-}
-
-
-act_cat = [
-            'achievement',
-            'enrichment',
-            'leadership',
-            'service'
-        ]
-
-add_forms = {
-    'cca': {
-        'name': '',
-        'type': ''
-    },
-    
-    'activity': {
-        'name': '',
-        'start_date': '',
-        'end_date': '',
-        'description': ''
-    }
-}
-
-update_forms = {
-    'cca': {
-        'cca_name': '',
-        'student_name': '',
-        'role': 'Member'
-    },
-    
-    'activity': {
-        'name': '',
-        'student_name': '',
-        'category': act_cat,
-        'role': 'Participant',
-        'award': '',
-        'hours': '',
-    }
+radio_options = {
+    'category': [
+        'achievement',
+        'enrichment',
+        'leadership',
+        'service'
+    ],
+    'level': [
+        'J1',
+        'J2'
+    ]
 }
 
 add_form_type = {
+    'student': {
+        'name': 'text',
+        'age': 'number',
+        'year_enrolled': 'number',
+        'graduating_year': 'number'
+    },
+    
+    'class': {
+        'name': 'text',
+        'level': 'radio'
+    },
+    
     'cca': {
         'name': 'text',
         'type': 'text'
@@ -126,20 +58,20 @@ add_form_type = {
     
     'activity': {
         'name': 'text',
+        'description': 'text',
         'start_date': 'date',
-        'end_date': 'date',
-        'description': 'text'
+        'end_date': 'date'
     }
 }
 
 update_form_type = {
-    'cca': {
+    'student_cca': {
         'student_name': 'text',
         'cca_name': 'text',
         'role': 'text'
     },
     
-    'activity': {
+    'student_activity': {
         'student_name': 'text',
         'activity_name': 'text',
         'category': 'radio',
@@ -149,6 +81,10 @@ update_form_type = {
     }
 }
 
+for type, headers in add_form_type.items():
+    update_form_type[type] = {'name': 'text'}
+    for header, value in headers.items():
+        update_form_type[type][f'new_{header}'] = value
 
 def add_data(update_or_add, path, type, form_data = None):
     data = {}
@@ -167,29 +103,45 @@ def add_data(update_or_add, path, type, form_data = None):
         'action': action,
         'method': 'post'
     }
-    if form_data:
-        data['form_data'] = form_data
-        if 'category' in form_data.keys():
-            data['checked'] = form_data['category']
-            data['form_data']['category'] = act_cat
-
-    else:
-        if update_or_add == 'add':
-            data['form_data'] = add_forms[type]
-            
-        else:
-            data['form_data'] = update_forms[type]
-
-    data['check'] = type
-    data['path'] = path
-    data['page_type'] = update_or_add
-    
     if update_or_add == 'add':
         data['form_type'] = add_form_type[type]
 
     else:
         data['form_type'] = update_form_type[type]
     
+    if form_data:
+        data['form_data'] = form_data
+        for key in form_data.keys():
+            if key in list(radio_options.keys())+['new_level']:
+                data['checked'] = form_data[key]
+                
+                if key == 'new_level':
+                    data['form_data'][key] = radio_options['level']
+                else:
+                    data['form_data'][key] = radio_options[key]
+                    
+
+    else:
+        if update_or_add == 'add':
+            data['form_data'] = add_form_type[type].copy()
+        else:
+            data['form_data'] = update_form_type[type].copy()
+
+        for key, value in data['form_data'].items():
+                if value == 'radio':
+                    if key == 'new_level':
+                        data['form_data'][key] = radio_options['level']
+                        
+                    else:
+                        data['form_data'][key] = radio_options[key]
+                    
+                else:
+                    data['form_data'][key] = ''
+            
+
+    data['check'] = type
+    data['path'] = path
+    data['page_type'] = update_or_add
     return data
 
 def view_data(type, main_table = '', foreign_table = ''):
@@ -207,67 +159,29 @@ def view_data(type, main_table = '', foreign_table = ''):
     data['foreign'] = foreign_table
     data['data'] = []
     
-    if foreign_table:
-        main_record = coll[type].view_record(main_table)
-        main_id = main_record[0]
+    header = list(add_form_type[type].keys())
+    records = coll[type].view_all()
 
-        main_record = dict(zip(headers[type], main_record))
+    for record in records:
+        record = dict(zip(header, record))
         
-        foreign_table = foreign_table_names[foreign_table]
-        if type == 'student':
-            data['header'] = dict(enumerate(['name'] + headers[f"{type}{foreign_table}"]))
-            records = coll[f"{type}{foreign_table}"].view_all(headers[f"{type}{foreign_table}"])
-            index = 0 
-        
-        else:
-            data['header'] = dict(enumerate(['name'] + headers[f"{foreign_table}{type}"]))
-            records = coll[f"{foreign_table}{type}"].view_all(headers[f"{foreign_table}{type}"])
-            index = 1
-        
-        for key, value in foreign_table_names.items():
-            if value == type:
-                type = key
+        main = list(record.values())[0]
+        for key, value in ext_headers.items():
+            if key == type:
+                for extra in value:
+                    record[extra] = [f'View {extra}', f'/view_{type}?{main}&{extra}']
+
+                break
             
-        used_records = []
-        for record in records:
-            if record[index] == main_id:
-                record = list(record)
-                record.pop(index)
-                used_records.append(record)
+        data['data'].append(record)
 
-        
-        data['data'] = main_record
-        data['records'] = used_records
-        data['extra'] = []
+    data['data'] = dict(enumerate(data['data']))
+    data['extra'] = value
+    data['form_type'] = add_form_type[type]
+    header = dict(enumerate(header + ext_headers[type]))
     
-    else:
-        if type != 'student':
-            header = headers[type]
-            records = coll[type].view_all()
-        else:
-            header = ['name', 'class']
-            records = coll['studentclass'].view_all(headers['studentclass'])
-        
-        for record in records:
-            record = dict(zip(header, record))
-            main = list(record.values())[0]
-            for key, value in ext_headers.items():
-                if key == type:
-                    for extra in value:
-                        record[extra] = [f'View {extra}', f'/view_{type}?{main}&{extra}']
-                    break
-                
-            data['data'].append(record)
-
-            data['extra'] = value
-            
-            header = {}
-            
-            for index, key in enumerate(data['data'][0].keys()):
-                header[index] = key
-                
-            data['header'] = header
-            data['main_header'] = list(header.values())[0]
+    data['header'] = header
+    data['main_header'] = list(header.values())[0]
 
     return data
 

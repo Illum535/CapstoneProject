@@ -14,7 +14,7 @@
         <br><br><br>
         <form action="{{data['form_meta']['action']}}" method="{{data['form_meta']['method']}}" id="form">
             <div class="container-1">
-                <h1>{{data['check'].upper()}}</h1>
+                <h1>{{data['check'].replace('_', ' ').upper()}}</h1>
                 <div class='container-box'>
                     <div id='check-msg' class='highlight-red'></div>
                     
@@ -22,13 +22,8 @@
                     <span class="highlight-green">Confirm inputted data.</span>
                     <br><br>
                     {% elif data['path'] == 'success' %}
-                        {% if data['page_type'] == 'add' %}
-                        <span class="highlight-green">{{data['check'].title()}} successfully added.</span>
+                        <span class="highlight-green">{{data['check'].replace('_', ' ').upper()}}: Success!</span>
                         <br><br>
-                        {% elif data['page_type'] == 'update' %}
-                        <span class="highlight-green">{{data['check'].title()}} successfully updated.</span>
-                        <br><br>
-                        {% endif %}
                     {% elif data['path'] == 'fail' %}
                     <span class="highlight-red">{{data['check'].title()}} already in the database.</span>
                     <br><br>
@@ -71,11 +66,7 @@
                     
                     <div align='center' class="submit">
                         {% if data['path'] == 'success' %}
-                            {% if data['page_type'] == 'add' %}
-                                <input type='submit' value="Add another {{data['check'].title()}}" id='submit'>
-                            {% elif data['page_type'] == 'update' %}
-                                <input type='submit' value="Update another {{data['check'].title()}}" id='submit'>
-                            {% endif %}
+                            <input type='submit' value="{{data['page_type'].title()}} another {{data['check'].replace('_', ' ').title()}}" id='submit'>
                         {% else %}
                             <input type='button' value="Submit" id='submit'>
                         {% endif %}

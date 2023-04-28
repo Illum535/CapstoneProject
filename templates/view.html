@@ -34,18 +34,33 @@
                                     </p>
                                 </td>
                         {% endfor %}
+                            <td class="table-header">
+                                <p>Edit</p>
+                            </td>
+                            <td class="table-header">
+                                <p>Delete</p>
+                            </td>
                         </tr>
-                        {% for record in data['data'] %}
+                        {% for id, record in data['data'].items() %}
                             <tr>
-                                {% for key, value in record.items() %}
+                                <form method='post' action="/view_{{data['check']}}?edit">
+                                    {% for key, value in record.items() %}
+                                        <td>
+                                            {% if key in data['extra'] %}
+                                                <a class='table-content' href="{{value[1]}}">{{value[0]}}</a>
+                                            {% else %}
+                                                <p class='table-content' name="{{id}}">{{value}}</p>
+                                                <input class='{{id}}' type='hidden' name='{{key}}' value="{{value}}">
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
                                     <td>
-                                        {% if key in data['extra'] %}
-                                            <a class='table-content' href="{{value[1]}}">{{value[0]}}</a>
-                                        {% else %}
-                                            <p class='table-content'>{{value}}</p>
-                                        {% endif %}
+                                        <input class="table-edit" type='button' value='Edit' onclick='edit({{id}}, this)'>
                                     </td>
-                                {% endfor %}
+                                    <td>
+                                        <input class="table-delete" type="submit" value='Delete' formaction="/view_{{data['check']}}?delete">
+                                    </td>
+                                </form>
                             </tr>
                         {% endfor %}
                     </table>
@@ -79,7 +94,33 @@
         {% include 'footer.html' %}
     </body>
     <script>
-        
+        function edit(id, self) {
+            var row;
+            row_input = document.getElementsByClassName(id);
+            row_p = document.getElementsByName(id);
+            for (i = 0; i < (row_input.length); i++) {
+                if (row_input[i].type == 'text') {
+                    self.type = 'submit'; 
+                };
+                
+                {% for name, type in data['form_type'].items() %}
+                    if (row_input[i].name == "{{name}}") {
+                        if ("{{type}}" == 'radio') {
+                            row_input[i].type = "text";
+                            
+                        } else {
+                            row_input[i].type = "{{type}}";
+                        };
+                    };
+                {% endfor %}
+                
+                row_p[i].innerHTML = '';
+                row_p[i].style.margin = '0px';
+            };
+
+            self.value = 'Done';
+        };
+
         function search(key) { /** Linear search **/
             var table, rows, search_by;
             search_by = document.getElementById('select').value; /**Value for which column to search by**/

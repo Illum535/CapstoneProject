@@ -27,9 +27,10 @@ class Collection:
         params = tuple(record.values())
         name = params[0]
         check = self.view_record(name)
+        
         if check == 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA':
 
-            if self._tblname == 'CCA':
+            if self._tblname == 'cca':
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?);        
@@ -82,7 +83,9 @@ class Collection:
         for i, x in enumerate(result):
             x = list(x)
             x.pop(0)
+            x = tuple(x)
             result[i] = x
+            
         return result
 
 
