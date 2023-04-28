@@ -1,63 +1,79 @@
-act_cat = [
-            'achievement',
-            'enrichment',
-            'leadership',
-            'service'
-        ]
+from storage import *
 
-add_forms = {
-    'cca': {
-        'name': '',
-        'type': ''
-    },
-    
-    'activity': {
-        'start_date': '',
-        'end_date': '',
-        'description': ''
-    }
+coll = {
+    'activity': ActivityCollection(),
+    'cca': CCACollection(),
+    'class': ClassCollection(),
+    'student': StudentCollection(),
+    # 'studentclass': StudentClassCollection(),
+    # 'studentcca': StudentCCACollection(),
+    # 'studentactivity': StudentActivityCollection(),
+    # 'studentsubject': StudentSubjectCollection(),
+    # 'activitycca': CCAActivityCollection()
 }
 
-update_forms = {
-    'cca': {
-        'cca_name': '',
-        'student_name': '',
-        'role': 'Member'
-    },
-    
-    'activity': {
-        'activity_description': '',
-        'student_name': '',
-        'category': act_cat,
-        'role': 'Participant',
-        'award': '',
-        'hours': '',
-    }
+cca_act_class_ext = ['students']
+
+ext_headers = {
+    'activity': cca_act_class_ext,
+    'cca': cca_act_class_ext + ['activities'],
+    'class': cca_act_class_ext,
+    'student': [
+        'ccas',
+        'activities',
+        'subjects'
+    ]
+}
+
+radio_options = {
+    'category': [
+        'achievement',
+        'enrichment',
+        'leadership',
+        'service'
+    ],
+    'level': [
+        'J1',
+        'J2'
+    ]
 }
 
 add_form_type = {
+    'student': {
+        'name': 'text',
+        'age': 'number',
+        'year_enrolled': 'number',
+        'graduating_year': 'number'
+    },
+    
+    'class': {
+        'name': 'text',
+        'level': 'radio'
+    },
+    
     'cca': {
         'name': 'text',
         'type': 'text'
     },
     
     'activity': {
+        'name': 'text',
+        'description': 'text',
         'start_date': 'date',
-        'end_date': 'date',
-        'description': 'text'
+        'end_date': 'date'
     }
 }
 
 update_form_type = {
-    'cca': {
+    'student_cca': {
         'student_name': 'text',
         'cca_name': 'text',
         'role': 'text'
     },
     
-    'activity': {
+    'student_activity': {
         'student_name': 'text',
-        'activity_description': 'text',
+        'activity_name': 'text',
         'category': 'radio',
         'role': 'text',
         'award': 'text',
@@ -65,6 +81,10 @@ update_form_type = {
     }
 }
 
+for type, headers in add_form_type.items():
+    update_form_type[type] = {'name': 'text'}
+    for header, value in headers.items():
+        update_form_type[type][f'new_{header}'] = value
 
 def add_data(update_or_add, path, type, form_data = None):
     data = {}
@@ -83,44 +103,85 @@ def add_data(update_or_add, path, type, form_data = None):
         'action': action,
         'method': 'post'
     }
-    if form_data:
-        data['form_data'] = form_data
-        if 'category' in form_data.keys():
-            data['checked'] = form_data['category']
-            data['form_data']['category'] = act_cat
-
-    else:
-        if update_or_add == 'add':
-            data['form_data'] = add_forms[type]
-            
-        else:
-            data['form_data'] = update_forms[type]
-
-    data['check'] = type
-    data['path'] = path
-    data['page_type'] = update_or_add
-    
     if update_or_add == 'add':
         data['form_type'] = add_form_type[type]
 
     else:
         data['form_type'] = update_form_type[type]
     
-    return data
+    if form_data:
+        data['form_data'] = form_data
+        for key in form_data.keys():
+            if key in list(radio_options.keys())+['new_level']:
+                data['checked'] = form_data[key]
+                
+                if key == 'new_level':
+                    data['form_data'][key] = radio_options['level']
+                else:
+                    data['form_data'][key] = radio_options[key]
+                    
 
-def view_data(type, specific = ''):
-    data = {}
+    else:
+        if update_or_add == 'add':
+            data['form_data'] = add_form_type[type].copy()
+        else:
+            data['form_data'] = update_form_type[type].copy()
+
+        for key, value in data['form_data'].items():
+                if value == 'radio':
+                    if key == 'new_level':
+                        data['form_data'][key] = radio_options['level']
+                        
+                    else:
+                        data['form_data'][key] = radio_options[key]
+                    
+                else:
+                    data['form_data'][key] = ''
+            
 
     data['check'] = type
-    data['specific'] = specific
-        
-    data['data'] = [{'name': f'placeholder{i}', 'age':f'{100-i}'} for i in range(100)] #Replace with database function
-    header = {}
+    data['path'] = path
+    data['page_type'] = update_or_add
+    return data
+
+def view_data(type, main_table = '', foreign_table = ''):
+    data = {}
+    foreign_table_names = {
+        'students': 'student',
+        'activities': 'activity',
+        'ccas': 'cca',
+        'subjects': 'subject',
+    }
     
-    for index, key in enumerate(data['data'][0].keys()):
-        header[index] = key
+    
+    data['check'] = type
+    data['main'] = main_table
+    data['foreign'] = foreign_table
+    data['data'] = []
+    
+    header = list(add_form_type[type].keys())
+    records = coll[type].view_all()
+
+    for record in records:
+        record = dict(zip(header, record))
         
+        main = list(record.values())[0]
+        for key, value in ext_headers.items():
+            if key == type:
+                for extra in value:
+                    record[extra] = [f'View {extra}', f'/view_{type}?{main}&{extra}']
+
+                break
+            
+        data['data'].append(record)
+
+    data['data'] = dict(enumerate(data['data']))
+    data['extra'] = value
+    data['form_type'] = add_form_type[type]
+    header = dict(enumerate(header + ext_headers[type]))
+    
     data['header'] = header
     data['main_header'] = list(header.values())[0]
+
     return data
 

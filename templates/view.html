@@ -8,47 +8,119 @@
 
     <body>
         {% include 'header.html' %}
-        <div class='container-1'>
-            <h1>{{data['check'].upper()}} {{data['specific'].upper()}}</h1>
+        <div class='container'>
+            <h1>{{data['check'].upper()}} {{data['main'].upper()}} {{data['foreign'].upper()}}</h1>
             <div class='container-box'>
-                <input placeholder="Search" type='text' class='search' oninput="search(this.value)">
-                <select id="select">
-                    {% for count, key in data['header'].items() %}
-                    <option value="{{count}}">
-                        {{key.title()}}
-                    </option>
-                    {% endfor %}
-                </select>
-                <br><br>
-                <table id='table'>
-                    <tr>
-                    {% for count, key in data['header'].items() %}
-                            <td class='table-header' onclick='sort({{count}}, "caret-{{key}}")'>
-                                <p id='{{key}}'>
-                                    {{key.title()}} <i class="downcaret" id="caret-{{key}}" style="border-color: white"></i>
-                                </p>
+                <span>Search: </span>
+                    <input placeholder="Search" type='text' class='search' oninput="search(this.value)">
+                    <span>Search by: </span>
+                    <select id="select">
+                        {% for count, key in data['header'].items() %}
+                            {% if key not in data['extra'] %}
+                            <option value="{{count}}">
+                                {{key.replace('_', ' ').title()}}
+                            </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                {% if not data['main'] %}
+                    <br><br>
+                    <table id='table'>
+                        <tr>
+                        {% for count, key in data['header'].items() %}
+                                <td class='table-header' onclick='sort({{count}}, "caret-{{key}}")'>
+                                    <p id='{{key}}'>
+                                        {{key.replace('_', ' ').title()}} <i class="downcaret" id="caret-{{key}}" style="border-color: white"></i>
+                                    </p>
+                                </td>
+                        {% endfor %}
+                            <td class="table-header">
+                                <p>Edit</p>
                             </td>
+                            <td class="table-header">
+                                <p>Delete</p>
+                            </td>
+                        </tr>
+                        {% for id, record in data['data'].items() %}
+                            <tr>
+                                <form method='post' action="/view_{{data['check']}}?edit">
+                                    {% for key, value in record.items() %}
+                                        <td>
+                                            {% if key in data['extra'] %}
+                                                <a class='table-content' href="{{value[1]}}">{{value[0]}}</a>
+                                            {% else %}
+                                                <p class='table-content' name="{{id}}">{{value}}</p>
+                                                <input class='{{id}}' type='hidden' name='{{key}}' value="{{value}}">
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                    <td>
+                                        <input class="table-edit" type='button' value='Edit' onclick='edit({{id}}, this)'>
+                                    </td>
+                                    <td>
+                                        <input class="table-delete" type="submit" value='Delete' formaction="/view_{{data['check']}}?delete">
+                                    </td>
+                                </form>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    {% for header, value in data['data'].items() %}
+                        <p>{{header.replace('_', ' ').title()}}: {{value}}</p>
                     {% endfor %}
-                    </tr>
-                    {% for record in data['data'] %}
-                        <tr id="{{record[data['main_header']]}}" onclick=go_to_url("{{record[data['main_header']]}}")>
-                            {% for value in record.values() %}
-                                <td>
-                                    <p class='table-content'>{{value}}</p>
+                    <table id='table'>
+                        <tr>
+                            {% for count, header in data['header'].items() %}
+                                <td class='table-header' onclick='sort({{count}}, "caret-{{header}}")'>
+                                    <p id="{{header}}">
+                                        {{header.title()}} <i class="downcaret" id="caret-{{header}}" style="border-color: white"></i>
+                                    </p>
                                 </td>
                             {% endfor %}
                         </tr>
-                    {% endfor %}
-                </table>
+                        {% for record in data['records'] %}
+                            <tr>
+                                {% for value in record %}
+                                    <td>
+                                        <p class='table-content'>{{value}}</p>
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% endif %}
             </div>
         </div>
         {% include 'footer.html' %}
     </body>
     <script>
-        function go_to_url(value) {
-            window.location = "/view_{{data['check']}}?" + value;
+        function edit(id, self) {
+            var row;
+            row_input = document.getElementsByClassName(id);
+            row_p = document.getElementsByName(id);
+            for (i = 0; i < (row_input.length); i++) {
+                if (row_input[i].type == 'text') {
+                    self.type = 'submit'; 
+                };
+                
+                {% for name, type in data['form_type'].items() %}
+                    if (row_input[i].name == "{{name}}") {
+                        if ("{{type}}" == 'radio') {
+                            row_input[i].type = "text";
+                            
+                        } else {
+                            row_input[i].type = "{{type}}";
+                        };
+                    };
+                {% endfor %}
+                
+                row_p[i].innerHTML = '';
+                row_p[i].style.margin = '0px';
+            };
+
+            self.value = 'Done';
         };
-        
+
         function search(key) { /** Linear search **/
             var table, rows, search_by;
             search_by = document.getElementById('select').value; /**Value for which column to search by**/

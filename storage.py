@@ -27,9 +27,10 @@ class Collection:
         params = tuple(record.values())
         name = params[0]
         check = self.view_record(name)
+        
         if check == 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA':
 
-            if self._tblname == 'CCA':
+            if self._tblname == 'cca':
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?);        
@@ -84,6 +85,7 @@ class Collection:
             x.pop(0)
             x = tuple(x)
             result[i] = x
+            
         return result
 
 
@@ -119,12 +121,24 @@ class Collection:
         conn.commit()
         conn.close()
 
-        
+
 class ActivityCollection(Collection):
     def __init__(self):
-        super().__init__('capstoneV5.db', 'Activity')
+        super().__init__('capstoneV5.db', 'activity')
 
 
 class CCACollection(Collection):
     def __init__(self):
-        super().__init__('capstoneV5.db', 'CCA')
+        super().__init__('capstoneV5.db', 'cca')
+
+class ClassCollection(Collection):
+    def __init__(self):
+        super().__init__('capstoneV5.db', 'class')
+
+class StudentCollection(Collection):
+    def __init__(self):
+        super().__init__('capstoneV5.db', 'student')
+
+class SubjectCollection(Collection):
+    def __init__(self):
+        super().__init__('capstoneV5.db', 'subject')
