@@ -29,17 +29,20 @@ class Collection:
         check = self.view_record(name)
         
         if check == 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA':
-
+            id = self.add_id()
+            params = list(params)
+            params.insert(0, id)
+            params = tuple(params)
             if self._tblname == 'cca':
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
-                    VALUES (?, ?);        
+                    VALUES (?, ?, ?);        
                 """
 
             else:
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
-                    VALUES (?, ?, ?, ?);        
+                    VALUES (?, ?, ?, ?, ?);        
                 """
         
             c.execute(QUERY, params)
@@ -49,7 +52,10 @@ class Collection:
         conn.commit()
         conn.close()
 
-    
+    def add_id(self):
+        data = self.view_all()
+        num = len(data)
+        return num + 1
 
 
     def view_record(self, name):
@@ -92,8 +98,8 @@ class Collection:
     
 
     def edit_record(self, name, record):
-        details = record.values()
-        keys = record.keys()
+        details = list(record.values())
+        keys = list(record.keys())
         conn = sqlite3.connect(self._dbname)
         c = conn.cursor()
         
@@ -101,22 +107,27 @@ class Collection:
         
         if check == 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA':
             return check
-            
-        if self._tblname == 'CCA':
-            query = f"""UPDATE {self._tblname} SET
-                        {keys[0]} = {details[0]}
-                        {keys[1]} = {details[1]}
+        data = self.view_all()
+        id = data.index(check) + 1
+        print(keys)
+        if self._tblname == 'cca':
+            query = f"""UPDATE {self._tblname} 
+                        SET "id" = ?,
+                            {keys[0]} = ?,
+                            {keys[1]} = ?
                         WHERE "Name" = ?
                         ;"""
+            val = (id, details[0], details[1], name)
         else:
-            query = f"""UPDATE {self._tblname} SET
-                        {keys[0]} = {details[0]}
-                        {keys[1]} = {details[1]}
-                        {keys[2]} = {details[2]}
-                        {keys[3]} = {details[3]}
+            query = f"""UPDATE {self._tblname}
+                        SET "id" = ?,
+                            {keys[0]} = ?,
+                            {keys[1]} = ?,
+                            {keys[2]} = ?,
+                            {keys[3]} = ?
                         WHERE "Name" = ?
                         ;"""
-        val = (name,)
+            val = (id, details[0], details[1], details[2], details[3], name)
         c.execute(query, val)
         conn.commit()
         conn.close()
