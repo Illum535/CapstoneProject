@@ -16,17 +16,6 @@ from storage import *
 
 app = Flask(__name__)
 
-coll = {
-    'activity': ActivityCollection(),
-    'cca': CCACollection(),
-    'class': ClassCollection(),
-    'student': StudentCollection(),
-    # 'studentclass': StudentClassCollection(),
-    # 'studentcca': StudentCCACollection(),
-    # 'studentactivity': StudentActivityCollection(),
-    # 'studentsubject': StudentSubjectCollection(),
-    # 'activitycca': CCAActivityCollection()
-}
 
 @app.route('/')
 def index():
@@ -39,11 +28,15 @@ def index():
 @app.route("/add_student", methods = ['POST', 'GET'])
 def add_student():
     '''
-    Returns the page at path '/add_student' to add new cca to the database
+    Returns the page at path '/add_student' to add new student to the database
     '''
     if request.args:
         if not dict(request.form).values():
             return redirect("/add_student")
+        if 'success' in request.args:
+            result = coll['student'].add_record(dict(request.form))
+            if result:
+                return render_template('add_update.html', data = add_data('add', 'fail', type = 'student', form_data = dict(request.form)))
         
         return render_template('add_update.html', data = add_data('add', list(request.args)[0], type = 'student', form_data = dict(request.form)))
     
@@ -52,15 +45,36 @@ def add_student():
 @app.route("/add_class", methods = ['POST', 'GET'])
 def add_class():
     '''
-    Returns the page at path '/add_class' to add new cca to the database
+    Returns the page at path '/add_class' to add new class to the database
     '''
     if request.args:
         if not dict(request.form).values():
             return redirect("/add_class")
+        if 'success' in request.args:
+            result = coll['class'].add_record(dict(request.form))
+            if result:
+                return render_template('add_update.html', data = add_data('add', 'fail', type = 'class', form_data = dict(request.form)))
         
         return render_template('add_update.html', data = add_data('add', list(request.args)[0], type = 'class', form_data = dict(request.form)))
     
     return render_template('add_update.html', data = add_data('add', '', type = 'class'))
+
+@app.route("/add_subject", methods = ['POST', 'GET'])
+def add_subject():
+    '''
+    Returns the page at path '/add_subject' to add new subject to the database
+    '''
+    if request.args:
+        if not dict(request.form).values():
+            return redirect("/add_subject")
+        if 'success' in request.args:
+            result = coll['subject'].add_record(dict(request.form))
+            if result:
+                return render_template('add_update.html', data = add_data('add', 'fail', type = 'subject', form_data = dict(request.form)))
+        
+        return render_template('add_update.html', data = add_data('add', list(request.args)[0], type = 'subject', form_data = dict(request.form)))
+    
+    return render_template('add_update.html', data = add_data('add', '', type = 'subject'))
 
 @app.route("/add_cca", methods = ['POST', 'GET'])
 def add_cca():
@@ -70,6 +84,10 @@ def add_cca():
     if request.args:
         if not dict(request.form).values():
             return redirect("/add_cca")
+        if 'success' in request.args:
+            result = coll['cca'].add_record(dict(request.form))
+            if result:
+                return render_template('add_update.html', data = add_data('add', 'fail', type = 'cca', form_data = dict(request.form)))
         
         return render_template('add_update.html', data = add_data('add', list(request.args)[0], type = 'cca', form_data = dict(request.form)))
     
@@ -83,7 +101,10 @@ def add_act():
     if request.args:
         if not dict(request.form).values():
             return redirect("/add_activity")
-        
+        if 'success' in request.args:
+            result = coll['activity'].add_record(dict(request.form))
+            if result:
+                return render_template('add_update.html', data = add_data('add', 'fail', type = 'activity', form_data = dict(request.form)))
             
         return render_template('add_update.html', data = add_data('add', list(request.args)[0], type = 'activity', form_data = dict(request.form)))
     
@@ -97,9 +118,10 @@ def view_student():
     Returns the page at path '/view_student' to show all students
     '''
     if request.args:
-        if 'edit' in request.args or 'delete' in request.args:
-            print(request.form)
-            return redirect("/view_student")
+        if 'edit' in request.args:
+            data = get_update_data('view', dict(request.form))
+            coll['student'].edit_record(data[0], data[1])
+            return redirect('/view_student')
             
         return render_template('view.html', data = view_data('student', list(request.args)[0], list(request.args)[1]))
         
@@ -111,10 +133,11 @@ def view_class():
     Returns the page at path '/view_class' to show all classes
     '''
     if request.args:
-        if 'edit' in request.args or 'delete' in request.args:
-            print(request.form)
-            return redirect("/view_class")
-            
+        if 'edit' in request.args:
+            data = get_update_data('view', dict(request.form))
+            coll['class'].edit_record(data[0], data[1])
+            return redirect('/view_class')
+        
         return render_template('view.html', data = view_data('class', list(request.args)[0], list(request.args)[1]))
         
     return render_template('view.html', data = view_data('class'))
@@ -126,8 +149,9 @@ def view_cca():
     '''
     if request.args:
         if 'edit' in request.args or 'delete' in request.args:
-            print(request.form)
-            return redirect("/view_cca")
+            data = get_update_data('view', dict(request.form))
+            coll['cca'].edit_record(data[0], data[1])
+            return redirect('/view_cca')
             
         return render_template('view.html', data = view_data('cca', list(request.args)[0], list(request.args)[1]))
         
@@ -140,12 +164,28 @@ def view_act():
     '''
     if request.args:
         if 'edit' in request.args or 'delete' in request.args:
-            print(request.form)
-            return redirect("/view_activity")
+            data = get_update_data('view', dict(request.form))
+            coll['activity'].edit_record(data[0], data[1])
+            return redirect('/view_activity')
             
         return render_template('view.html', data = view_data('activity', list(request.args)[0], list(request.args)[1]))
         
     return render_template('view.html', data = view_data('activity'))
+
+@app.route('/view_subject', methods = ['GET', 'POST'])
+def view_subject():
+    '''
+    Returns the page at path '/view_subject' to show all subjects
+    '''
+    if request.args:
+        if 'edit' in request.args or 'delete' in request.args:
+            data = get_update_data('view', dict(request.form))
+            coll['subject'].edit_record(data[0], data[1])
+            return redirect('/view_subject')
+            
+        return render_template('view.html', data = view_data('subject', list(request.args)[0], list(request.args)[1]))
+        
+    return render_template('view.html', data = view_data('subject'))
 
 
 
@@ -157,7 +197,12 @@ def update_student():
     if request.args:
         if not dict(request.form).values():
             return redirect("/update_student")
-            
+        if 'success' in request.args:
+            data = get_update_data('update', dict(request.form))
+            result = coll['student'].edit_record(data[0], data[1])
+            if result:
+                return render_template('add_update.html', data = add_data('update', 'fail', type = 'student', form_data = dict(request.form)))
+        
         return render_template('add_update.html', data = add_data('update', list(request.args)[0], type = 'student', form_data = dict(request.form)))
 
     return render_template('add_update.html', data = add_data('update', '', type = 'student'))
@@ -170,7 +215,12 @@ def update_class():
     if request.args:
         if not dict(request.form).values():
             return redirect("/update_class")
-            
+        if 'success' in request.args:
+            data = get_update_data('update', dict(request.form))
+            result = coll['class'].edit_record(data[0], data[1])
+            if result:
+                return render_template('add_update.html', data = add_data('update', 'fail', type = 'class', form_data = dict(request.form)))
+
         return render_template('add_update.html', data = add_data('update', list(request.args)[0], type = 'class', form_data = dict(request.form)))
 
     return render_template('add_update.html', data = add_data('update', '', type = 'class'))
@@ -183,7 +233,12 @@ def update_cca():
     if request.args:
         if not dict(request.form).values():
             return redirect("/update_cca")
-            
+        if 'success' in request.args:
+            data = get_update_data('update', dict(request.form))
+            result = coll['cca'].edit_record(data[0], data[1])
+            if result:
+                return render_template('add_update.html', data = add_data('update', 'fail', type = 'cca', form_data = dict(request.form)))
+        
         return render_template('add_update.html', data = add_data('update', list(request.args)[0], type = 'cca', form_data = dict(request.form)))
 
     return render_template('add_update.html', data = add_data('update', '', type = 'cca'))
@@ -196,10 +251,33 @@ def update_activity():
     if request.args:
         if not dict(request.form).values():
             return redirect("/update_activity")
+        if 'success' in request.args:
+            data = get_update_data('update', dict(request.form))
+            result = coll['activity'].edit_record(data[0], data[1])
+            if result:
+                return render_template('add_update.html', data = add_data('update', 'fail', type = 'activity', form_data = dict(request.form)))
             
         return render_template('add_update.html', data = add_data('update', list(request.args)[0], type = 'activity', form_data = dict(request.form)))
 
     return render_template('add_update.html', data = add_data('update', '', type = 'activity'))
+
+@app.route('/update_subject', methods = ['POST', 'GET'])
+def update_subject():
+    '''
+    Returns the page at path '/update_subject' to update subject data
+    '''
+    if request.args:
+        if not dict(request.form).values():
+            return redirect("/update_activity")
+        if 'success' in request.args:
+            data = get_update_data('update', dict(request.form))
+            result = coll['subject'].edit_record(data[0], data[1])
+            if result:
+                return render_template('add_update.html', data = add_data('update', 'fail', type = 'subject', form_data = dict(request.form)))
+            
+        return render_template('add_update.html', data = add_data('update', list(request.args)[0], type = 'subject', form_data = dict(request.form)))
+
+    return render_template('add_update.html', data = add_data('update', '', type = 'subject'))
         
 @app.route('/update_student_cca', methods = ['POST', 'GET'])
 def update_studentcca():

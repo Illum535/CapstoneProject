@@ -5,6 +5,7 @@ coll = {
     'cca': CCACollection(),
     'class': ClassCollection(),
     'student': StudentCollection(),
+    'subject': SubjectCollection()
     # 'studentclass': StudentClassCollection(),
     # 'studentcca': StudentCCACollection(),
     # 'studentactivity': StudentActivityCollection(),
@@ -14,6 +15,11 @@ coll = {
 
 cca_act_class_ext = ['students']
 
+default_values = {
+    'student_ccarole': 'member',
+    'student_activityrole': 'participant'
+}
+
 ext_headers = {
     'activity': cca_act_class_ext,
     'cca': cca_act_class_ext + ['activities'],
@@ -22,19 +28,25 @@ ext_headers = {
         'ccas',
         'activities',
         'subjects'
-    ]
+    ],
+    'subject': cca_act_class_ext
 }
 
 radio_options = {
-    'category': [
+    'student_activitycategory': [
         'achievement',
         'enrichment',
         'leadership',
         'service'
     ],
-    'level': [
+    'classlevel': [
         'J1',
         'J2'
+    ],
+    'subjectlevel': [
+        'H1',
+        'H2',
+        'H3'
     ]
 }
 
@@ -61,6 +73,11 @@ add_form_type = {
         'description': 'text',
         'start_date': 'date',
         'end_date': 'date'
+    },
+
+    'subject': {
+        'name': 'text',
+        'level': 'radio'
     }
 }
 
@@ -92,9 +109,8 @@ def add_data(update_or_add, path, type, form_data = None):
         '': f'/{update_or_add}_{type}?confirm',
         'confirm': f'/{update_or_add}_{type}?success',
         'success': f'/{update_or_add}_{type}',
-        'fail': f'/{update_or_add}_{type}'
+        'fail': f'/{update_or_add}_{type}?confirm'
     }
-
     for key, act in paths.items():
         if key == path:
             action = act
@@ -112,13 +128,10 @@ def add_data(update_or_add, path, type, form_data = None):
     if form_data:
         data['form_data'] = form_data
         for key in form_data.keys():
-            if key in list(radio_options.keys())+['new_level']:
+            new_key = f"{type}{key.replace('new_', '')}"
+            if new_key in list(radio_options.keys()):
                 data['checked'] = form_data[key]
-                
-                if key == 'new_level':
-                    data['form_data'][key] = radio_options['level']
-                else:
-                    data['form_data'][key] = radio_options[key]
+                data['form_data'][key] = radio_options[new_key]
                     
 
     else:
@@ -129,15 +142,14 @@ def add_data(update_or_add, path, type, form_data = None):
 
         for key, value in data['form_data'].items():
                 if value == 'radio':
-                    if key == 'new_level':
-                        data['form_data'][key] = radio_options['level']
-                        
-                    else:
-                        data['form_data'][key] = radio_options[key]
+                    new_key = f"{type}{key.replace('new_', '')}"
+                    data['form_data'][key] = radio_options[new_key]
                     
+                elif f'{type}{key}' in default_values.keys():
+                    data['form_data'][key] = default_values[f'{type}{key}']
+
                 else:
                     data['form_data'][key] = ''
-            
 
     data['check'] = type
     data['path'] = path
@@ -178,6 +190,10 @@ def view_data(type, main_table = '', foreign_table = ''):
     data['data'] = dict(enumerate(data['data']))
     data['extra'] = value
     data['form_type'] = add_form_type[type]
+    for key, value in data['form_type'].items():
+        if value == "radio":
+            data['options'] = radio_options[f'{type}{key}']
+            
     header = dict(enumerate(header + ext_headers[type]))
     
     data['header'] = header
@@ -185,3 +201,19 @@ def view_data(type, main_table = '', foreign_table = ''):
 
     return data
 
+def get_update_data(view_or_update, record):
+    if view_or_update == 'view':
+        name = record['old_name']
+        new_record = {}
+        for key in record.keys():
+            if 'old' not in key:
+                new_record[key] = record[key]
+
+    else:
+        name = record['name']
+        new_record = {}
+        for key in record.keys():
+            if 'new' in key:
+                new_record[key.replace('new_', '')] = record[key]
+
+    return (name, new_record)
