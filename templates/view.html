@@ -11,27 +11,33 @@
         <div class='container'>
             <h1>{{data['check'].upper()}} {{data['main'].upper()}} {{data['foreign'].upper()}}</h1>
             <div class='container-box'>
-                <span>Search: </span>
-                    <input placeholder="Search" type='text' class='search' oninput="search(this.value)">
-                    <span>Search by: </span>
-                    <select id="select">
-                        {% for count, key in data['header'].items() %}
-                            {% if key not in data['extra'] %}
-                            <option value="{{count}}">
-                                {{key.replace('_', ' ').title()}}
-                            </option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
+                <label for='search'>Search: </label>
+                <input id='search' placeholder="Search" type='text' class='search' oninput="search(this.value)">
+                <label for='select'>Search by: </label>
+                <select id="select">
+                    {% for count, key in data['header'].items() %}
+                        {% if key not in data['extra'] %}
+                        <option value="{{count}}">
+                            {{key.replace('_', ' ').title()}}
+                        </option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
                 {% if not data['main'] %}
                     <br><br>
                     <table id='table'>
                         <tr>
                         {% for count, key in data['header'].items() %}
                                 <td class='table-header' onclick='sort({{count}}, "caret-{{key}}")'>
-                                    <p id='{{key}}'>
-                                        {{key.replace('_', ' ').title()}} <i class="downcaret" id="caret-{{key}}" style="border-color: white"></i>
-                                    </p>
+                                    {% if key in data['extra'] %}
+                                        <p id='{{key}}'>
+                                            {{key.replace('_', ' ').title()}}
+                                        </p>
+                                    {% else %}
+                                        <p id='{{key}}'>
+                                            {{key.replace('_', ' ').title()}} <i class="downcaret" id="caret-{{key}}" style="border-color: white"></i>
+                                        </p>
+                                    {% endif %}
                                 </td>
                         {% endfor %}
                             <td class="table-header">
@@ -50,7 +56,16 @@
                                                 <a class='table-content' href="{{value[1]}}">{{value[0]}}</a>
                                             {% else %}
                                                 <p class='table-content' name="{{id}}">{{value}}</p>
-                                                <input class='{{id}}' type='hidden' name='{{key}}' value="{{value}}">
+                                                <input type='hidden' name='old_{{key}}' value="{{value}}">
+                                                {% if data['form_type'][key] != 'radio' %}
+                                                    <input class='{{id}}' type='hidden' name='{{key}}' value="{{value}}">
+                                                {% else %}
+                                                    <select class='{{id}}' name='{{key}}'>
+                                                        {% for option in data['options'] %}
+                                                            <option value="{{option}}">{{option}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                {% endif %}
                                             {% endif %}
                                         </td>
                                     {% endfor %}
@@ -95,30 +110,45 @@
     </body>
     <script>
         function edit(id, self) {
-            var row;
+            var row, no_change, check1, check2;
             row_input = document.getElementsByClassName(id);
             row_p = document.getElementsByName(id);
+            no_change = true;
+            
             for (i = 0; i < (row_input.length); i++) {
-                if (row_input[i].type == 'text') {
-                    self.type = 'submit'; 
-                };
-                
-                {% for name, type in data['form_type'].items() %}
-                    if (row_input[i].name == "{{name}}") {
-                        if ("{{type}}" == 'radio') {
-                            row_input[i].type = "text";
-                            
-                        } else {
-                            row_input[i].type = "{{type}}";
-                        };
+                check1 = row_input[i].type != 'hidden' && row_input[i].type != 'select-one';
+                check2 = row_input[i].style.display == 'block';
+                if (check1 || check2) {
+                    if (row_input[i].name == 'start_date') {
+                        var start_date = row_input[i].value
+                    } else if (row_input[i].name == 'end_date' && row_input[i].value < start_date) {
+                        no_change = false;
                     };
-                {% endfor %}
-                
-                row_p[i].innerHTML = '';
-                row_p[i].style.margin = '0px';
+                    
+                } else {
+                    no_change = false;
+                    {% for name, type in data['form_type'].items() %}
+                        if (row_input[i].name == "{{name}}") {
+                            if ("{{type}}" == 'radio') {
+                                row_input[i].style.display = 'block';
+                                
+                            } else {
+                                row_input[i].type = "{{type}}";
+                            };
+                        };
+                    {% endfor %}
+                    
+                    row_p[i].style.display = 'none';
+                    row_p[i].style.margin = '0px';
+                };
             };
-
-            self.value = 'Done';
+            if (no_change) {
+                self.type = 'submit';
+                
+            } else {
+                self.value = 'Done';
+                
+            };
         };
 
         function search(key) { /** Linear search **/

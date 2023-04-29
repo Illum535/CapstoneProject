@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>
-            {{data['page_type'].title()}} {{data['check']}}
+            {{data['page_type'].title()}} {{data['check'].replace('_', ' ')}}
         </title>
         <link href="/static/style.css" rel="spreadsheet">
         <link href="https://www.firmus.com.sg/wp-content/uploads/2022/03/SK_196_edited_sq_trans-line.png" rel='icon'>
@@ -81,9 +81,15 @@
         document.getElementById('submit').addEventListener('click', check);
         
         function check() {
-            if ("{{data['check']}}" == 'activity' && "{{data['page_type']}}" == 'add') {
-                var start = document.getElementById('start_date').value;
-                var end = document.getElementById('end_date').value;
+            if ("{{data['check']}}" == 'activity') {
+                if ("{{data['page_type']}}" == 'add') {
+                    var start = document.getElementById('start_date').value;
+                    var end = document.getElementById('end_date').value;
+                } else {
+                    var start = document.getElementById('new_start_date').value;
+                    var end = document.getElementById('new_end_date').value; 
+                };
+                
                 if (start > end) {
                     document.getElementById('check-msg').innerHTML = 'Start date must be before end date';
                     document.getElementById('check-msg').style.marginBottom = "10px";

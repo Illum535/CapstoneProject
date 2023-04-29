@@ -3,7 +3,7 @@ body {
     margin: 0px;
     background-color: #171717;
     color: white;
-    /* background-image: url("https://www.firmus.com.sg/wp-content/uploads/2022/03/SK_196_edited_sq_trans-line.png");*/
+    /* background-image: url("https://www.firmus.com.sg/wp-content/uploads/2022/03/SK_196_edited_sq_trans-line.png"); */
     
 }
 
@@ -31,8 +31,8 @@ a {
 }
 
 .mainbody {
-    margin-top: 15%;
-    margin-bottom: 10%;
+    margin: auto;
+    margin-top: 200px;
     font-size: 50px;
     padding: 30px;
 }
@@ -69,6 +69,12 @@ a {
     width: 70%;
     height: 60%;
     margin: auto;
+}
+
+.container h1{
+    color: white;
+    font-weight: 200;
+    
 }
 
 .skl {
@@ -281,7 +287,7 @@ a {
 .table-header {
     text-align: left;
     font-weight: bold;
-    background-image: linear-gradient(to right, #ff0000 30%, #7a0000 100%);
+    background-color: #9e0000;
     padding: 5px;
     margin: 0px;
     cursor: pointer;
@@ -294,7 +300,6 @@ a {
 .table-content {
     text-align: left;
     margin: 5px;
-    cursor: pointer;
     color: white;
 }
 
@@ -341,4 +346,9 @@ td input {
     background-color: #32353c;
     color: white;
     border: 1px #32353c;
+}
+
+td select {
+    display: none;
+
 }
