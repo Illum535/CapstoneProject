@@ -33,7 +33,7 @@ class Collection:
             params = list(params)
             params.insert(0, id)
             params = tuple(params)
-            if self._tblname == 'cca':
+            if self._tblname == 'CCA':
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?, ?);        
@@ -110,7 +110,7 @@ class Collection:
         data = self.view_all()
         id = data.index(check) + 1
         print(keys)
-        if self._tblname == 'cca':
+        if self._tblname == 'CCA':
             query = f"""UPDATE {self._tblname} 
                         SET "id" = ?,
                             {keys[0]} = ?,
@@ -135,21 +135,21 @@ class Collection:
 
 class ActivityCollection(Collection):
     def __init__(self):
-        super().__init__('capstoneV5.db', 'activity')
+        super().__init__('capstoneV6.db', 'Activity')
 
 
 class CCACollection(Collection):
     def __init__(self):
-        super().__init__('capstoneV5.db', 'cca')
+        super().__init__('capstoneV6.db', 'CCA')
 
 class ClassCollection(Collection):
     def __init__(self):
-        super().__init__('capstoneV5.db', 'class')
+        super().__init__('capstoneV6.db', 'Class')
 
 class StudentCollection(Collection):
     def __init__(self):
-        super().__init__('capstoneV5.db', 'student')
+        super().__init__('capstoneV6.db', 'Student')
 
 class SubjectCollection(Collection):
     def __init__(self):
-        super().__init__('capstoneV5.db', 'subject')
+        super().__init__('capstoneV6.db', 'Subjects')
