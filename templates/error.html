@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>ERROR {{error}}</title>
+        <link rel='stylesheet' src='static/css/style.css'>
+    </head>
+    <body>
+        {% include 'header.html' %}
+        <div class='error'>
+            <h1>{{error}}</h1>
+            <h2>
+                {{msg}}
+                <br><br>
+                <a href='/'>Go Home</a>
+            </h2>
+        </div>
+        {% include 'footer.html' %}
+    </body>
+</html>
