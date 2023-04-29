@@ -71,6 +71,12 @@ a {
     margin: auto;
 }
 
+.container h1{
+    color: white;
+    font-weight: 200;
+    
+}
+
 .skl {
     float: left;
 }
@@ -281,7 +287,7 @@ a {
 .table-header {
     text-align: left;
     font-weight: bold;
-    background-image: linear-gradient(to right, #ff0000 30%, #7a0000 100%);
+    background-color: #9e0000;
     padding: 5px;
     margin: 0px;
     cursor: pointer;
@@ -294,7 +300,7 @@ a {
 .table-content {
     text-align: left;
     margin: 5px;
-    cursor: pointer;
+    cursor: default;
     color: white;
 }
 

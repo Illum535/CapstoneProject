@@ -98,6 +98,7 @@ def view_student():
     '''
     if request.args:
         if 'edit' in request.args or 'delete' in request.args:
+            print(request.form)
             return redirect("/view_student")
             
         return render_template('view.html', data = view_data('student', list(request.args)[0], list(request.args)[1]))
@@ -111,6 +112,7 @@ def view_class():
     '''
     if request.args:
         if 'edit' in request.args or 'delete' in request.args:
+            print(request.form)
             return redirect("/view_class")
             
         return render_template('view.html', data = view_data('class', list(request.args)[0], list(request.args)[1]))
@@ -124,6 +126,7 @@ def view_cca():
     '''
     if request.args:
         if 'edit' in request.args or 'delete' in request.args:
+            print(request.form)
             return redirect("/view_cca")
             
         return render_template('view.html', data = view_data('cca', list(request.args)[0], list(request.args)[1]))
@@ -137,6 +140,7 @@ def view_act():
     '''
     if request.args:
         if 'edit' in request.args or 'delete' in request.args:
+            print(request.form)
             return redirect("/view_activity")
             
         return render_template('view.html', data = view_data('activity', list(request.args)[0], list(request.args)[1]))

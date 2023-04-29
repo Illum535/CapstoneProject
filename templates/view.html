@@ -11,27 +11,33 @@
         <div class='container'>
             <h1>{{data['check'].upper()}} {{data['main'].upper()}} {{data['foreign'].upper()}}</h1>
             <div class='container-box'>
-                <span>Search: </span>
-                    <input placeholder="Search" type='text' class='search' oninput="search(this.value)">
-                    <span>Search by: </span>
-                    <select id="select">
-                        {% for count, key in data['header'].items() %}
-                            {% if key not in data['extra'] %}
-                            <option value="{{count}}">
-                                {{key.replace('_', ' ').title()}}
-                            </option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
+                <label for='search'>Search: </label>
+                <input id='search' placeholder="Search" type='text' class='search' oninput="search(this.value)">
+                <label for='select'>Search by: </label>
+                <select id="select">
+                    {% for count, key in data['header'].items() %}
+                        {% if key not in data['extra'] %}
+                        <option value="{{count}}">
+                            {{key.replace('_', ' ').title()}}
+                        </option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
                 {% if not data['main'] %}
                     <br><br>
                     <table id='table'>
                         <tr>
                         {% for count, key in data['header'].items() %}
                                 <td class='table-header' onclick='sort({{count}}, "caret-{{key}}")'>
-                                    <p id='{{key}}'>
-                                        {{key.replace('_', ' ').title()}} <i class="downcaret" id="caret-{{key}}" style="border-color: white"></i>
-                                    </p>
+                                    {% if key in data['extra'] %}
+                                        <p id='{{key}}'>
+                                            {{key.replace('_', ' ').title()}}
+                                        </p>
+                                    {% else %}
+                                        <p id='{{key}}'>
+                                            {{key.replace('_', ' ').title()}} <i class="downcaret" id="caret-{{key}}" style="border-color: white"></i>
+                                        </p>
+                                    {% endif %}
                                 </td>
                         {% endfor %}
                             <td class="table-header">
@@ -55,7 +61,7 @@
                                         </td>
                                     {% endfor %}
                                     <td>
-                                        <input class="table-edit" type='button' value='Edit' onclick='edit({{id}}, this)'>
+                                        <input id='edit' class="table-edit" type='button' value='Edit' onclick='edit({{id}}, this)'>
                                     </td>
                                     <td>
                                         <input class="table-delete" type="submit" value='Delete' formaction="/view_{{data['check']}}?delete">
