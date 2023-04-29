@@ -16,6 +16,20 @@ from storage import *
 
 app = Flask(__name__)
 
+@app.errorhandler(404)
+def error404(e):
+    '''
+    Returns the error page
+    '''
+    return render_template('error.html', error = '404', msg = 'The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.')
+
+@app.errorhandler(500)
+def error500(e):
+    '''
+    Returns the error page
+    '''
+    return render_template('error.html', error = '500', msg = 'The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.')
+
 
 @app.route('/')
 def index():
@@ -148,7 +162,7 @@ def view_cca():
     Returns the page at path '/view_cca' to show all ccas
     '''
     if request.args:
-        if 'edit' in request.args or 'delete' in request.args:
+        if 'edit' in request.args:
             data = get_update_data('view', dict(request.form))
             coll['cca'].edit_record(data[0], data[1])
             return redirect('/view_cca')
@@ -163,7 +177,7 @@ def view_act():
     Returns the page at path '/view_activity' to show all activities
     '''
     if request.args:
-        if 'edit' in request.args or 'delete' in request.args:
+        if 'edit' in request.args:
             data = get_update_data('view', dict(request.form))
             coll['activity'].edit_record(data[0], data[1])
             return redirect('/view_activity')
@@ -178,7 +192,7 @@ def view_subject():
     Returns the page at path '/view_subject' to show all subjects
     '''
     if request.args:
-        if 'edit' in request.args or 'delete' in request.args:
+        if 'edit' in request.args:
             data = get_update_data('view', dict(request.form))
             coll['subject'].edit_record(data[0], data[1])
             return redirect('/view_subject')
