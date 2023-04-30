@@ -87,6 +87,7 @@ class Collection:
         """
         c.execute(VIEW)
         result = c.fetchall()
+        print(result)
         for i, x in enumerate(result):
             x = list(x)
             x.pop(0)
@@ -98,7 +99,7 @@ class Collection:
 
     
 
-    def edit_record(self, name, record):
+    def edit_record(self, name, record):      
         details = list(record.values())
         keys = list(record.keys())
         conn = sqlite3.connect(self._dbname)
@@ -114,18 +115,18 @@ class Collection:
         if self._tblname == 'CCA':
             query = f"""UPDATE {self._tblname} 
                         SET "id" = ?,
-                            {keys[0]} = ?,
-                            {keys[1]} = ?
+                            "Name" = ?,
+                            "Type" = ?
                         WHERE "Name" = ?
                         ;"""
             val = (id, details[0], details[1], name)
-        else:
+        elif self._tblname == 'Activity':
             query = f"""UPDATE {self._tblname}
                         SET "id" = ?,
-                            {keys[0]} = ?,
-                            {keys[1]} = ?,
-                            {keys[2]} = ?,
-                            {keys[3]} = ?
+                            "Name" = ?,
+                            "Description" = ?,
+                            "Start_Date" = ?,
+                            "End_Date" = ?
                         WHERE "Name" = ?
                         ;"""
             val = (id, details[0], details[1], details[2], details[3], name)
@@ -133,6 +134,44 @@ class Collection:
         conn.commit()
         conn.close()
 
+
+
+    def delete_record(self, name):
+        conn = sqlite3.connect(self._dbname)
+        c = conn.cursor()
+        query = f"""
+            DELETE FROM {self._tblname}
+            WHERE "Name" = ?;
+        """
+        val = (name, )
+        c.execute(query, val)
+        conn.commit()
+        conn.close()
+        self.reorder()
+
+
+    def reorder(self):
+        conn = sqlite3.connect(self._dbname)
+        c = conn.cursor()
+        VIEW = f"""
+            SELECT * FROM {self._tblname};
+        """
+        c.execute(VIEW)
+        result = c.fetchall()
+        for i, x in enumerate(result):
+            if x[0] != (i+1):
+                temp = {}
+                for y in x:
+                    if x.index(y) != 0:
+                        temp[y] = y
+                print(temp)
+                self.edit_record(x[1], temp)
+        conn.commit()
+        conn.close()
+                    
+            
+            
+        
 
 class ActivityCollection(Collection):
     def __init__(self):

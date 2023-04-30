@@ -186,3 +186,8 @@ def update_act():
 if __name__ == "__main__":
    app.run('0.0.0.0')
 
+# from storage import CCACollection
+# c = CCACollection()
+# c.delete_record('Chinese Orchestra')
+# b = c.view_all()
+# print(b)
