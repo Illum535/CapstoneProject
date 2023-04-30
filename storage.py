@@ -139,6 +139,11 @@ class Collection:
     def delete_record(self, name):
         conn = sqlite3.connect(self._dbname)
         c = conn.cursor()
+        check = self.view_record(name)
+        
+        if check == 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA':
+            return check
+            
         query = f"""
             DELETE FROM {self._tblname}
             WHERE "Name" = ?;
