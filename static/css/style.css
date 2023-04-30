@@ -352,3 +352,28 @@ td select {
     display: none;
 
 }
+
+.error {
+    margin-top: 10%;
+    padding: 55px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-gap: 10%;
+}
+
+.error h1 {
+    font-size: 340px;
+    float: left;
+    margin: 0;
+    text-align: right;
+    font-weight: 400;
+}
+
+.error h2 {
+    margin-top: 30%;
+    font-size: 20px;
+    float: right;
+    bottom: 0;
+    text-align: left;
+    font-weight: 200;
+}
