@@ -1,4 +1,5 @@
 from storage import *
+from flask import Flask, render_template, request, redirect
 
 coll = {
     'activity': ActivityCollection(),
@@ -78,10 +79,12 @@ add_form_type = {
     'subject': {
         'name': 'text',
         'level': 'radio'
-    }
-}
-
-update_form_type = {
+    },
+    'student_class': {
+        'student_name': 'text',
+        'class_name': 'text',
+    },
+    
     'student_cca': {
         'student_name': 'text',
         'cca_name': 'text',
@@ -98,10 +101,26 @@ update_form_type = {
     }
 }
 
+update_form_type = {}
+
 for type, headers in add_form_type.items():
-    update_form_type[type] = {'name': 'text'}
+    if '_' in type:
+        types = type.split('_')
+        update_form_type[type] = {
+            f'{types[0]}_name': 'text',
+            f'{types[1]}_name': 'text'
+        }
+        count = 2
+        
+    else:
+        update_form_type[type] = {'name': 'text'}
+        count = 0
+    
     for header, value in headers.items():
-        update_form_type[type][f'new_{header}'] = value
+        if count <= 0:
+            update_form_type[type][f'new_{header}'] = value
+        else:
+            count -= 1
 
 def add_data(update_or_add, path, type, form_data = None):
     data = {}
@@ -111,6 +130,14 @@ def add_data(update_or_add, path, type, form_data = None):
         'success': f'/{update_or_add}_{type}',
         'fail': f'/{update_or_add}_{type}?confirm'
     }
+    fail_msg = {
+        'add': 'already in database.',
+        'update': 'not in database.'
+    }
+    
+    if path == 'fail':
+        data['msg'] = fail_msg[update_or_add]
+        
     for key, act in paths.items():
         if key == path:
             action = act
@@ -217,3 +244,32 @@ def get_update_data(view_or_update, record):
                 new_record[key.replace('new_', '')] = record[key]
 
     return (name, new_record)
+
+def add_update(update_or_add, type, rqst):
+    if rqst.args:
+        if not dict(rqst.form).values():
+            return redirect(f"/{update_or_add}_{type}")
+        if 'success' in rqst.args:
+            if update_or_add == 'add':
+                result = coll[type].add_record(dict(rqst.form))
+            else:
+                data = get_update_data('update', dict(rqst.form))
+                result = coll[type].edit_record(data[0], data[1])
+                
+            if result:
+                return render_template('add_update.html', data = add_data(update_or_add, 'fail', type = type, form_data = dict(rqst.form)))
+        
+        return render_template('add_update.html', data = add_data(update_or_add, list(request.args)[0], type = type, form_data = dict(rqst.form)))
+    
+    return render_template('add_update.html', data = add_data(update_or_add, '', type = type))
+
+def view(type, rqst):
+    if rqst.args:
+        if 'edit' in rqst.args:
+            data = get_update_data('view', dict(rqst.form))
+            coll[type].edit_record(data[0], data[1])
+            return redirect(f'/view_{type}')
+            
+        return render_template('view.html', data = view_data(type, list(rqst.args)[0], list(rqst.args)[1]))
+        
+    return render_template('view.html', data = view_data(type))

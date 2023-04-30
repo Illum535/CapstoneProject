@@ -116,16 +116,10 @@
             no_change = true;
             
             for (i = 0; i < (row_input.length); i++) {
-                check1 = row_input[i].type != 'hidden' && row_input[i].type != 'select-one';
-                check2 = row_input[i].style.display == 'block';
+                check1 = row_input[i].type == 'hidden'
+                check2 = row_input[i].type == 'select-one' && row_input[i].style.display == '';
+                console.log(row_input[i].style.display)
                 if (check1 || check2) {
-                    if (row_input[i].name == 'start_date') {
-                        var start_date = row_input[i].value
-                    } else if (row_input[i].name == 'end_date' && row_input[i].value < start_date) {
-                        no_change = false;
-                    };
-                    
-                } else {
                     no_change = false;
                     {% for name, type in data['form_type'].items() %}
                         if (row_input[i].name == "{{name}}") {

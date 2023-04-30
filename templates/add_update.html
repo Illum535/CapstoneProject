@@ -25,7 +25,7 @@
                         <span class="highlight-green">{{data['check'].replace('_', ' ').upper()}}: Success!</span>
                         <br><br>
                     {% elif data['path'] == 'fail' %}
-                    <span class="highlight-red">{{data['check'].title()}} already in the database.</span>
+                    <span class="highlight-red">{{data['check'].title()}} {{data['msg']}}</span>
                     <br><br>
                     {% endif %}
                     
@@ -68,7 +68,7 @@
                         {% if data['path'] == 'success' %}
                             <input type='submit' value="{{data['page_type'].title()}} another {{data['check'].replace('_', ' ').title()}}" id='submit'>
                         {% else %}
-                            <input type='button' value="Submit" id='submit'>
+                            <input type='submit' value="Submit" id='submit'>
                         {% endif %}
                     </div>
                     
@@ -77,29 +77,4 @@
         </form>
         {% include "footer.html" %}
     </body>
-    <script>
-        document.getElementById('submit').addEventListener('click', check);
-        
-        function check() {
-            if ("{{data['check']}}" == 'activity') {
-                if ("{{data['page_type']}}" == 'add') {
-                    var start = document.getElementById('start_date').value;
-                    var end = document.getElementById('end_date').value;
-                } else {
-                    var start = document.getElementById('new_start_date').value;
-                    var end = document.getElementById('new_end_date').value; 
-                };
-                
-                if (start > end) {
-                    document.getElementById('check-msg').innerHTML = 'Start date must be before end date';
-                    document.getElementById('check-msg').style.marginBottom = "10px";
-                } else {
-                    document.getElementById('submit').type = 'submit'
-                };
-                
-            } else {
-                document.getElementById('submit').type = 'submit';
-            };
-        }
-    </script>
 </html>
