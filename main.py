@@ -164,6 +164,7 @@ def view_cca():
     if request.args:
         if 'edit' in request.args:
             data = get_update_data('view', dict(request.form))
+            print(data)
             coll['cca'].edit_record(data[0], data[1])
             return redirect('/view_cca')
             
