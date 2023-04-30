@@ -78,6 +78,7 @@ class Collection:
         return result
 
     
+    
     def view_all(self):
         conn = sqlite3.connect(self._dbname)
         c = conn.cursor()
