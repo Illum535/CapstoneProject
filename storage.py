@@ -96,6 +96,34 @@ class Collection:
                 params = (student_id, class_id)
 
 
+            elif self._tblname == 'cca_activity':
+                cca = 'CCA'
+                VIEW = f"""
+                    SELECT * FROM {cca} 
+                    WHERE "Name"=?;
+                """
+                val = (name, )
+                c.execute(VIEW, val)
+                cca_data = c.fetchone()
+                cca_id = cca_data[0]
+
+                act = 'Activity'
+                VIEW = f"""
+                    SELECT * FROM {act} 
+                    WHERE "Name"=?;
+                """
+                val = (params[-1], )
+                c.execute(VIEW, val)
+                act_data = c.fetchone()
+                act_id = act_data[0]
+
+                QUERY = f"""
+                    INSERT INTO {self._tblname} 
+                    VALUES (?, ?);        
+                """
+
+                params = (cca_id, act_id)
+
             elif self._tblname == 'student_subject':
                 student = 'Student'
                 VIEW = f"""
@@ -142,17 +170,17 @@ class Collection:
                     SELECT * FROM {act} 
                     WHERE "Name"=?;
                 """
-                val = (params[-1], )
+                val = (params[2], )
                 c.execute(VIEW, val)
                 act_data = c.fetchone()
                 act_id = act_data[0]
 
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
-                    VALUES (?, ?);        
+                    VALUES (?, ?, ?, ?, ?, ?);        
                 """
 
-                params = (student_id, act_id)
+                params = (student_id, act_id, params[3], params[4], params[5], params[-1])
                 
                 
 
@@ -248,6 +276,44 @@ class Collection:
             return (student_data[1], class_data[1])
 
 
+        elif self._tblname == 'cca_activity':
+            
+            cca = 'CCA'
+            VIEW = f"""
+            SELECT * FROM {cca} 
+            WHERE "Name"=?;
+            """
+            val = (name, )
+            c.execute(VIEW, val)
+            cca_data = c.fetchone()
+            if cca_data == None:
+                return 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+
+            VIEW = f"""
+            SELECT * FROM {self._tblname} 
+            WHERE "cca_id"=?;
+            """
+            val = (cca_data[0], )
+            c.execute(VIEW, val)
+            ccaact_data = c.fetchone()
+
+            if ccaact_data == None:
+                return 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+            
+            act = 'Activity'
+            VIEW = f"""
+            SELECT * FROM {act} 
+            WHERE "id"=?;
+            """
+            val = (ccaact_data[1], )
+            c.execute(VIEW, val)
+            act_data = c.fetchone()
+
+            conn.commit()
+            conn.close()
+            return (cca_data[1], act_data[1])
+
+
 
         elif self._tblname == 'student_activity':
             
@@ -284,7 +350,7 @@ class Collection:
 
             conn.commit()
             conn.close()
-            return (student_data[1], act_data[1])
+            return (student_data[1], act_data[1], studentact_data[2], studentact_data[3], studentact_data[4], studentact_data[5])
 
         
         elif self._tblname == 'student_cca':
@@ -428,6 +494,36 @@ class Collection:
 
 
 
+        elif self._tblname == 'cca_activity':
+            
+            data = []
+            for x in result:
+                
+                cca = 'CCA'
+                VIEW = f"""
+                SELECT * FROM {cca} 
+                WHERE "id"=?;
+                """
+                val = (x[0], )
+                c.execute(VIEW, val)
+                cca_data = c.fetchone()
+    
+                act = 'Activity'
+                VIEW = f"""
+                SELECT * FROM {act} 
+                WHERE "id"=?;
+                """
+                val = (x[1], )
+                c.execute(VIEW, val)
+                act_data = c.fetchone()
+
+                data.append((cca_data[1], act_data[1]))
+
+            conn.close()
+            return data
+
+
+
         elif self._tblname == 'student_activity':
             
             data = []
@@ -451,7 +547,7 @@ class Collection:
                 c.execute(VIEW, val)
                 act_data = c.fetchone()
 
-                data.append((student_data[1], act_data[1]))
+                data.append((student_data[1], act_data[1], x[2], x[3], x[4], x[5]))
 
             conn.close()
             return data
@@ -614,6 +710,31 @@ class Collection:
             val = (student_data[0], class_data[0], student_data[0])
 
 
+
+        elif self._tblname == 'cca_activity':
+            
+            cca = 'CCA'
+            VIEW = f"""SELECT * FROM {cca} 
+                        WHERE "Name" = ?;"""
+            val = (name, )
+            c.execute(VIEW, val)
+            cca_data = c.fetchone()
+
+            act = 'Activity'
+            VIEW = f"""SELECT * FROM {act} 
+                        WHERE "Name" = ?;"""
+            val = (details[0], )
+            c.execute(VIEW, val)
+            act_data = c.fetchone()
+            
+            query = f"""UPDATE {self._tblname} 
+                        SET "cca_id" = ?,
+                            "activity_id" = ?
+                        WHERE "cca_id" = ?
+                        ;"""
+            val = (cca_data[0], act_data[0], cca_data[0])
+
+
         elif self._tblname == 'student_activity':
             
             student = 'Student'
@@ -626,16 +747,20 @@ class Collection:
             act = 'Activity'
             VIEW = f"""SELECT * FROM {act} 
                         WHERE "Name" = ?;"""
-            val = (details[-1], )
+            val = (details[0], )
             c.execute(VIEW, val)
             act_data = c.fetchone()
             
             query = f"""UPDATE {self._tblname} 
                         SET "student_id" = ?,
-                            "activity_id" = ?
+                            "activity_id" = ?,
+                            "Role" = ?,
+                            "Category" = ?,
+                            "Award" = ?,
+                            "Hours" = ?
                         WHERE "student_id" = ?
                         ;"""
-            val = (student_data[0], act_data[0], student_data[0])
+            val = (student_data[0], act_data[0], details[1], details[2], details[3], details[4], student_data[0])
 
 
         elif self._tblname == 'student_subject':
@@ -732,6 +857,36 @@ class Collection:
 
 
 
+
+        if self._tblname == 'cca_activity':
+            
+            cca = 'CCA'
+            VIEW = f"""SELECT * FROM {cca} 
+                        WHERE "Name"=?;"""
+            val = (name, )
+            c.execute(VIEW, val)
+            cca_data = c.fetchone()
+            
+            CHECK = f""" 
+                        SELECT * FROM {self._tblname}
+                        WHERE "cca_id"=?;"""
+            
+            val = (cca_data[0], )
+            c.execute(CHECK, val)
+            result = c.fetchone()
+            if result == None:
+                return 'No such record exists.'
+            
+            query = f"""
+                DELETE FROM {self._tblname}
+                WHERE "cca_id" = ?;
+            """
+            val = (cca_data[0], )
+            c.execute(query, val)
+            conn.commit()
+            conn.close()
+            return ''
+
         
 
         query = f"""
@@ -809,3 +964,7 @@ class StudentActivityCollection(Collection):
 class StudentSubjectCollection(Collection):
     def __init__(self):
         super().__init__('capstoneV6.db', 'student_subject')
+
+class CCAActivityCollection(Collection):
+    def __init__(self):
+        super().__init__('capstoneV6.db', 'cca_activity')
