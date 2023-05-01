@@ -183,11 +183,5 @@ def update_act():
     return add_update('update', 'student_activity', request)
 
 
-# if __name__ == "__main__":
-#    app.run('0.0.0.0')
-
-from storage import StudentClassCollection
-c = StudentClassCollection()
-# c.delete_record('Su Kiat Lim')
-b = c.view_all()
-print(b)
+if __name__ == "__main__":
+   app.run('0.0.0.0')

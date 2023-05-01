@@ -88,7 +88,7 @@
                             {% for count, header in data['header'].items() %}
                                 <td class='table-header' onclick='sort({{count}}, "caret-{{header}}")'>
                                     <p id="{{header}}">
-                                        {{header.title()}} <i class="downcaret" id="caret-{{header}}" style="border-color: white"></i>
+                                        {{header.replace('_', ' ').title()}} <i class="downcaret" id="caret-{{header}}" style="border-color: white"></i>
                                     </p>
                                 </td>
                             {% endfor %}
