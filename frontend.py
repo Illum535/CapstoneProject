@@ -6,12 +6,12 @@ coll = {
     'cca': CCACollection(),
     'class': ClassCollection(),
     'student': StudentCollection(),
-    'subject': SubjectCollection()
-    # 'studentclass': StudentClassCollection(),
-    # 'studentcca': StudentCCACollection(),
-    # 'studentactivity': StudentActivityCollection(),
-    # 'studentsubject': StudentSubjectCollection(),
-    # 'activitycca': CCAActivityCollection()
+    'subject': SubjectCollection(),
+    'student_class': StudentClassCollection(),
+    'student_cca': StudentCCACollection(),
+    'student_activity': StudentActivityCollection(),
+    'student_subject': StudentSubjectCollection(),
+    'cca_activity': CCAActivityCollection()
 }
 
 cca_act_class_ext = ['students']
@@ -45,6 +45,11 @@ radio_options = {
         'J2'
     ],
     'subjectlevel': [
+        'H1',
+        'H2',
+        'H3'
+    ],
+    'student_subjectlevel': [
         'H1',
         'H2',
         'H3'
@@ -85,6 +90,12 @@ add_form_type = {
         'class_name': 'text',
     },
     
+    'student_subject': {
+        'student_name': 'text',
+        'subject_name': 'text',
+        'level': 'radio'
+    },
+    
     'student_cca': {
         'student_name': 'text',
         'cca_name': 'text',
@@ -98,6 +109,11 @@ add_form_type = {
         'role': 'text',
         'award': 'text',
         'hours': 'number',
+    },
+    
+    'cca_activity': {
+        'cca_name': 'text',
+        'activity_name': 'text',
     }
 }
 
@@ -172,8 +188,8 @@ def add_data(update_or_add, path, type, form_data = None):
                     new_key = f"{type}{key.replace('new_', '')}"
                     data['form_data'][key] = radio_options[new_key]
                     
-                elif f'{type}{key}' in default_values.keys():
-                    data['form_data'][key] = default_values[f'{type}{key}']
+                elif f"{type}{key.replace('new_', '')}" in default_values.keys():
+                    data['form_data'][key] = default_values[f"{type}{key.replace('new_', '')}"]
 
                 else:
                     data['form_data'][key] = ''
@@ -183,53 +199,107 @@ def add_data(update_or_add, path, type, form_data = None):
     data['page_type'] = update_or_add
     return data
 
-def view_data(type, main_table = '', foreign_table = ''):
-    data = {}
-    foreign_table_names = {
+foreign_table_names = {
         'students': 'student',
         'activities': 'activity',
         'ccas': 'cca',
         'subjects': 'subject',
     }
-    
+
+def view_data(type, main = '', foreign_table = ''):
+    data = {}
     
     data['check'] = type
-    data['main'] = main_table
-    data['foreign'] = foreign_table
+    data['main'] = main
     data['data'] = []
-    
-    header = list(add_form_type[type].keys())
-    records = coll[type].view_all()
-
-    for record in records:
-        record = dict(zip(header, record))
-        
-        main = list(record.values())[0]
-        for key, value in ext_headers.items():
-            if key == type:
-                for extra in value:
-                    record[extra] = [f'View {extra}', f'/view_{type}?{main}&{extra}']
-
-                break
-            
-        data['data'].append(record)
-
-    data['data'] = dict(enumerate(data['data']))
-    data['extra'] = value
+    data['foreign'] = foreign_table
     data['form_type'] = add_form_type[type]
-    for key, value in data['form_type'].items():
-        if value == "radio":
-            data['options'] = radio_options[f'{type}{key}']
+    
+    if foreign_table:
+        foreign_table = foreign_table_names[foreign_table]
+        if foreign_table == 'student':
+            form_index = f'{foreign_table}_{type}'
+            index = 1
+        else:
+            form_index = f'{type}_{foreign_table}'
+            index = 0
+
+        header = list(add_form_type[form_index].keys())
+        data['form_type'] = add_form_type[form_index]
+        records = coll[form_index].view_all()
+        data['records'] = []
+        data['data'] = dict(zip(add_form_type[type].keys(), coll[type].view_record(main)))
+        header.pop(index)
+        for record in records:
+            if main in record:
+                record = list(record)
+                record.pop(index)
+                data['records'].append(dict(zip(header, record)))
+
+        data['records'] = dict(enumerate(data['records']))
+        data['no_of_headers'] = len(header)
+        if 'level' in header:
+            data['no_of_headers'] -= 1
             
-    header = dict(enumerate(header + ext_headers[type]))
+        header = dict(enumerate(header))
+        for key, value in data['form_type'].items():
+            if value == "radio":
+                data['options'] = radio_options[f'{form_index}{key}']
+    
+    else:
+        header = list(add_form_type[type].keys())
+        
+        records = coll[type].view_all()
+    
+        for record in records:
+            record = dict(zip(header, record))
+            
+            main = list(record.values())[0]
+            for key, value in ext_headers.items():
+                if key == type:
+                    for extra in value:
+                        record[extra] = [f'View {extra}', f'/view_{type}?{main}&{extra}']
+    
+                    break
+            
+            data['data'].append(record)
+
+        
+        data['extra'] = value
+        for key, value in data['form_type'].items():
+            if value == "radio":
+                data['options'] = radio_options[f'{type}{key}']
+                
+        header = dict(enumerate(header + ext_headers[type]))
+        data['data'] = dict(enumerate(data['data']))
+
     
     data['header'] = header
-    data['main_header'] = list(header.values())[0]
-
     return data
 
-def get_update_data(view_or_update, record):
+def get_update_data(view_or_update, record, is_multi = False, args = None, type = None):
     if view_or_update == 'view':
+        if is_multi:
+            values = list(record.values())
+            keys = list(record.keys())
+
+            if 'students' in args:
+                name = values[1]
+                record = [values[0]] + values[2:]
+                coll_index = f'{foreign_table_names[args[1]]}_{type}'
+            else:
+                name = values[0]
+                record = values[1:]
+                coll_index = f'{type}_{foreign_table_names[args[1]]}'
+                
+                
+            new_record = {}
+            for index, value in enumerate(record):
+                if index % 2 == 0:
+                    new_record[keys[1:][index]] = value
+
+            return (name, new_record, coll_index)
+            
         name = record['old_name']
         new_record = {}
         for key in record.keys():
@@ -237,8 +307,13 @@ def get_update_data(view_or_update, record):
                 new_record[key] = record[key]
 
     else:
-        name = record['name']
         new_record = {}
+        if is_multi:
+            name = record['student_name']
+            new_record[list(record.keys())[1]] = list(record.values())[1]
+        else:
+            name = record['name']
+            
         for key in record.keys():
             if 'new' in key:
                 new_record[key.replace('new_', '')] = record[key]
@@ -253,7 +328,11 @@ def add_update(update_or_add, type, rqst):
             if update_or_add == 'add':
                 result = coll[type].add_record(dict(rqst.form))
             else:
-                data = get_update_data('update', dict(rqst.form))
+                if '_' in type:
+                    data = get_update_data('update', dict(rqst.form), True)
+                else:
+                    data = get_update_data('update', dict(rqst.form))
+
                 result = coll[type].edit_record(data[0], data[1])
                 
             if result:
@@ -265,11 +344,27 @@ def add_update(update_or_add, type, rqst):
 
 def view(type, rqst):
     if rqst.args:
+        args = list(rqst.args)
         if 'edit' in rqst.args:
+            if len(rqst.args) > 1:
+                data = get_update_data('view', dict(rqst.form), True, args, type)
+                coll[data[2]].edit_record(data[0], data[1])
+                return redirect(f'/view_{type}?{args[0]}&{args[1]}')
+                
             data = get_update_data('view', dict(rqst.form))
             coll[type].edit_record(data[0], data[1])
             return redirect(f'/view_{type}')
             
-        return render_template('view.html', data = view_data(type, list(rqst.args)[0], list(rqst.args)[1]))
+        elif 'delete' in rqst.args:
+            if len(rqst.args) > 1:
+                data = get_update_data('view', dict(rqst.form), True, args, type)
+                coll[data[2]].delete_record(data[0])
+                return redirect(f'/view_{type}?{args[0]}&{args[1]}')
+                
+            data = get_update_data('view', dict(rqst.form))
+            coll[type].delete_record(data[0])
+            return redirect(f'/view_{type}')
+            
+        return render_template('view.html', data = view_data(type, args[0], args[1]))
         
     return render_template('view.html', data = view_data(type))

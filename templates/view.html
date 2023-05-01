@@ -88,19 +88,53 @@
                             {% for count, header in data['header'].items() %}
                                 <td class='table-header' onclick='sort({{count}}, "caret-{{header}}")'>
                                     <p id="{{header}}">
-                                        {{header.title()}} <i class="downcaret" id="caret-{{header}}" style="border-color: white"></i>
+                                        {{header.replace('_', ' ').title()}} <i class="downcaret" id="caret-{{header}}" style="border-color: white"></i>
                                     </p>
                                 </td>
                             {% endfor %}
+                            {% if data['no_of_headers'] > 1 %}
+                                <td class='table-header'>
+                                    <p>Edit</p>
+                                </td>
+                            {% endif %}
+                            <td class='table-header'>
+                                <p>Delete</p>
+                            </td>
                         </tr>
-                        {% for record in data['records'] %}
-                            <tr>
-                                {% for value in record %}
+                        {% for id, record in data['records'].items() %}
+                            <form action="/view_{{data['check']}}?{{data['main']}}&{{data['foreign']}}&edit" method='post'>
+                                <tr>
+                                    <input type='hidden' name='old_{{data["check"]}}_name' value="{{data['main']}}">
+                                    {% for key, value in record.items() %}
+                                        <td>
+                                            <input type='hidden' name='old_{{key}}' value="{{value}}">
+                                            {% if 'name' not in key %}
+                                                {% if data['form_type'][key] != 'radio' %}
+                                                    <input class='{{id}}' type='hidden' name='{{key}}' value="{{value}}">
+                                                {% else %}
+                                                    <select class='{{id}}' name='{{key}}'>
+                                                        {% for option in data['options'] %}
+                                                            <option value="{{option}}">{{option}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                {% endif %}
+                                                <p class='table-content' name="{{id}}">{{value}}</p>
+    
+                                            {% else %}
+                                                <p class='table-content'>{{value}}</p>
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                    {% if data['no_of_headers'] > 1 %}
+                                        <td>
+                                            <input class="table-edit" type='button' value='Edit' onclick='edit({{id}}, this)'>
+                                        </td>
+                                    {% endif %}
                                     <td>
-                                        <p class='table-content'>{{value}}</p>
+                                        <input class="table-delete" type="submit" value='Delete' formaction="/view_{{data['check']}}?{{data['main']}}&{{data['foreign']}}&delete">
                                     </td>
-                                {% endfor %}
-                            </tr>
+                                </tr>
+                            </form>
                         {% endfor %}
                     </table>
                 {% endif %}
