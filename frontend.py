@@ -188,8 +188,8 @@ def add_data(update_or_add, path, type, form_data = None):
                     new_key = f"{type}{key.replace('new_', '')}"
                     data['form_data'][key] = radio_options[new_key]
                     
-                elif f'{type}{key}' in default_values.keys():
-                    data['form_data'][key] = default_values[f'{type}{key}']
+                elif f"{type}{key.replace('new_', '')}" in default_values.keys():
+                    data['form_data'][key] = default_values[f"{type}{key.replace('new_', '')}"]
 
                 else:
                     data['form_data'][key] = ''
@@ -332,7 +332,7 @@ def add_update(update_or_add, type, rqst):
                     data = get_update_data('update', dict(rqst.form), True)
                 else:
                     data = get_update_data('update', dict(rqst.form))
-                print(data)
+
                 result = coll[type].edit_record(data[0], data[1])
                 
             if result:
