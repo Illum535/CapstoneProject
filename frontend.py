@@ -8,10 +8,10 @@ coll = {
     'student': StudentCollection(),
     'subject': SubjectCollection(),
     'student_class': StudentClassCollection(),
-    # 'studentcca': StudentCCACollection(),
-    # 'studentactivity': StudentActivityCollection(),
-    # 'studentsubject': StudentSubjectCollection(),
-    # 'activitycca': CCAActivityCollection()
+    'student_cca': StudentCCACollection(),
+    'student_activity': StudentActivityCollection(),
+    'student_subject': StudentSubjectCollection(),
+    # 'activity_cca': CCAActivityCollection()
 }
 
 cca_act_class_ext = ['students']
@@ -83,6 +83,12 @@ add_form_type = {
     'student_class': {
         'student_name': 'text',
         'class_name': 'text',
+    },
+    
+    'student_subject': {
+        'student_name': 'text',
+        'subject_name': 'text',
+        'level': 'radio'
     },
     
     'student_cca': {
@@ -196,23 +202,36 @@ def view_data(type, main = '', foreign_table = ''):
     data['main'] = main
     data['data'] = []
     data['foreign'] = foreign_table
+    data['form_type'] = add_form_type[type]
     
     if foreign_table:
         foreign_table = foreign_table_names[foreign_table]
         if foreign_table == 'student':
             header = list(add_form_type[f'{foreign_table}_{type}'].keys())
+            data['form_type'] = add_form_type[f'{foreign_table}_{type}']
             records = coll[f'{foreign_table}_{type}'].view_all()
+            index = 1
         else:
             header = list(add_form_type[f'{type}_{foreign_table}'].keys())
+            data['form_type'] = add_form_type[f'{type}_{foreign_table}']
             records = coll[f'{type}_{foreign_table}'].view_all()
+            index = 0
 
         data['records'] = []
         data['data'] = dict(zip(add_form_type[type].keys(), coll[type].view_record(main)))
+        header.pop(index)
         for record in records:
             if main in record:
-                data['records'].append(record)
+                record = list(record)
+                record.pop(index)
+                data['records'].append(dict(zip(header, record)))
 
+        data['records'] = dict(enumerate(data['records']))
+        data['no_of_headers'] = len(header)
         header = dict(enumerate(header))
+        for key, value in data['form_type'].items():
+            if value == "radio":
+                data['options'] = radio_options[f'{foreign_table}{key}']
     
     else:
         header = list(add_form_type[type].keys())
@@ -241,9 +260,8 @@ def view_data(type, main = '', foreign_table = ''):
         header = dict(enumerate(header + ext_headers[type]))
         data['data'] = dict(enumerate(data['data']))
 
-    data['form_type'] = add_form_type[type]
+    
     data['header'] = header
-    print(data['data'])
     return data
 
 def get_update_data(view_or_update, record):
@@ -284,6 +302,8 @@ def add_update(update_or_add, type, rqst):
 def view(type, rqst):
     if rqst.args:
         if 'edit' in rqst.args:
+            if len(rqst.args) > 1:
+                
             data = get_update_data('view', dict(rqst.form))
             coll[type].edit_record(data[0], data[1])
             return redirect(f'/view_{type}')
