@@ -102,37 +102,38 @@
                             </td>
                         </tr>
                         {% for id, record in data['records'].items() %}
-                            <form action="/view_{{data['check']}}?{{data['main']}}&{{data['foreign_table']}}&edit" method='post'>
-                            <tr>
-                                {% for key, value in record.items() %}
-                                    <td>
-                                        <input type='hidden' name='old_{{key}}' value="{{value}}">
-                                        {% if 'name' not in key %}
-                                            {% if data['form_type'][key] != 'radio' %}
-                                                <input class='{{id}}' type='hidden' name='{{key}}' value="{{value}}">
+                            <form action="/view_{{data['check']}}?{{data['main']}}&{{data['foreign']}}&edit" method='post'>
+                                <tr>
+                                    <input type='hidden' name='old_{{data["check"]}}_name' value="{{data['main']}}">
+                                    {% for key, value in record.items() %}
+                                        <td>
+                                            <input type='hidden' name='old_{{key}}' value="{{value}}">
+                                            {% if 'name' not in key %}
+                                                {% if data['form_type'][key] != 'radio' %}
+                                                    <input class='{{id}}' type='hidden' name='{{key}}' value="{{value}}">
+                                                {% else %}
+                                                    <select class='{{id}}' name='{{key}}'>
+                                                        {% for option in data['options'] %}
+                                                            <option value="{{option}}">{{option}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                {% endif %}
+                                                <p class='table-content' name="{{id}}">{{value}}</p>
+    
                                             {% else %}
-                                                <select class='{{id}}' name='{{key}}'>
-                                                    {% for option in data['options'] %}
-                                                        <option value="{{option}}">{{option}}</option>
-                                                    {% endfor %}
-                                                </select>
+                                                <p class='table-content'>{{value}}</p>
                                             {% endif %}
-                                            <p class='table-content' name="{{id}}">{{value}}</p>
-
-                                        {% else %}
-                                            <p class='table-content'>{{value}}</p>
-                                        {% endif %}
-                                    </td>
-                                {% endfor %}
-                                {% if data['no_of_headers'] > 1 %}
+                                        </td>
+                                    {% endfor %}
+                                    {% if data['no_of_headers'] > 1 %}
+                                        <td>
+                                            <input class="table-edit" type='button' value='Edit' onclick='edit({{id}}, this)'>
+                                        </td>
+                                    {% endif %}
                                     <td>
-                                        <input class="table-edit" type='button' value='Edit' onclick='edit({{id}}, this)'>
+                                        <input class="table-delete" type="submit" value='Delete' formaction="/view_{{data['check']}}?{{data['main']}}&{{data['foreign']}}&delete">
                                     </td>
-                                {% endif %}
-                                <td>
-                                    <input class="table-delete" type="submit" value='Delete' formaction="/view_{{data['check']}}?delete">
-                                </td>
-                            </tr>
+                                </tr>
                             </form>
                         {% endfor %}
                     </table>
