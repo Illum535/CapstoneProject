@@ -334,7 +334,7 @@ def add_update(update_or_add, type, rqst): # add/update function for rendering a
                     data = get_update_data('update', dict(rqst.form)) # get data for single table coll
 
                 result = coll[type].edit_record(data[0], data[1]) # edit the data
-                
+            
             if result: # if failed to add/update
                 return render_template('add_update.html', data = add_data(update_or_add, 'fail', type = type, form_data = dict(rqst.form))) # fail page
         
