@@ -30,44 +30,77 @@ class Collection:
         name = params[0]
         check = self.view_record(name)
         
-        if check == 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA':
-            id = self.add_id()
-            params = list(params)
-            params.insert(0, id)
-            params = tuple(params)
             
-            if self._tblname == 'CCA':
+        if self._tblname == 'CCA':
+            if check == None:
+                id = self.add_id()
+                params = list(params)
+                params.insert(0, id)
+                params = tuple(params)
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?, ?);        
                 """
 
-            elif self._tblname == 'Activity':
+        elif self._tblname == 'Activity':
+            if check == None:
+                id = self.add_id()
+                params = list(params)
+                params.insert(0, id)
+                params = tuple(params)
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?, ?, ?, ?);        
                 """
 
-            elif self._tblname == 'Class':
+        elif self._tblname == 'Class':
+            if check == None:
+                id = self.add_id()
+                params = list(params)
+                params.insert(0, id)
+                params = tuple(params)
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?, ?);        
                 """
 
-            elif self._tblname == 'Student':
+        elif self._tblname == 'Student':
+            if check == None:
+                id = self.add_id()
+                params = list(params)
+                params.insert(0, id)
+                params = tuple(params)
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?, ?, ?, ?);        
                 """
-                
-            elif self._tblname == 'Subjects':
+            
+        elif self._tblname == 'Subjects':
+            VIEW = f"""
+            SELECT * FROM {self._tblname} 
+            WHERE "Name"=? AND "Level"=?;
+            """ 
+            val = (params[0], params[1])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                id = self.add_id()
+                params = list(params)
+                params.insert(0, id)
+                params = tuple(params)
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?, ?);        
                 """
 
+        
+        elif self._tblname == 'student_class':
+            if check == None:
+                id = self.add_id()
+                params = list(params)
+                params.insert(0, id)
+                params = tuple(params)
             
-            elif self._tblname == 'student_class':
                 student = 'Student'
                 VIEW = f"""
                     SELECT * FROM {student} 
@@ -77,7 +110,7 @@ class Collection:
                 c.execute(VIEW, val)
                 student_data = c.fetchone()
                 student_id = student_data[0]
-
+    
                 theclass = 'Class'
                 VIEW = f"""
                     SELECT * FROM {theclass} 
@@ -86,140 +119,188 @@ class Collection:
                 val = (params[-1], )
                 c.execute(VIEW, val)
                 class_data = c.fetchone()
+                if class_data == None:
+                    return None
                 class_id = class_data[0]
-
+    
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?);        
                 """
-
+    
                 params = (student_id, class_id)
 
 
-            elif self._tblname == 'cca_activity':
-                cca = 'CCA'
-                VIEW = f"""
-                    SELECT * FROM {cca} 
-                    WHERE "Name"=?;
-                """
-                val = (name, )
-                c.execute(VIEW, val)
-                cca_data = c.fetchone()
-                cca_id = cca_data[0]
+        elif self._tblname == 'cca_activity':
+            cca = 'CCA'
+            VIEW = f"""
+                SELECT * FROM {cca} 
+                WHERE "Name"=?;
+            """
+            val = (name, )
+            c.execute(VIEW, val)
+            cca_data = c.fetchone()
+            if cca_data == None:
+                return None
+            cca_id = cca_data[0]
 
-                act = 'Activity'
-                VIEW = f"""
-                    SELECT * FROM {act} 
-                    WHERE "Name"=?;
-                """
-                val = (params[-1], )
-                c.execute(VIEW, val)
-                act_data = c.fetchone()
-                act_id = act_data[0]
+            act = 'Activity'
+            VIEW = f"""
+                SELECT * FROM {act} 
+                WHERE "Name"=?;
+            """
+            val = (params[-1], )
+            c.execute(VIEW, val)
+            act_data = c.fetchone()
+            if act_data == None:
+                return None
+            act_id = act_data[0]
 
+
+            VIEW = f"""
+                SELECT * FROM {self._tblname} 
+                WHERE "cca_id"=? AND "activity_id"=?;
+            """
+            val = (cca_id, act_id)
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?);        
                 """
-
+    
                 params = (cca_id, act_id)
 
-            elif self._tblname == 'student_subject':
-                student = 'Student'
-                VIEW = f"""
-                    SELECT * FROM {student} 
-                    WHERE "Name"=?;
-                """
-                val = (name, )
-                c.execute(VIEW, val)
-                student_data = c.fetchone()
-                student_id = student_data[0]
+        elif self._tblname == 'student_subject':
+            student = 'Student'
+            VIEW = f"""
+                SELECT * FROM {student} 
+                WHERE "Name"=?;
+            """
+            val = (name, )
+            c.execute(VIEW, val)
+            student_data = c.fetchone()
+            if student_data == None:
+                return None
+            student_id = student_data[0]
 
-                sub = 'Subjects'
-                VIEW = f"""
-                    SELECT * FROM {sub} 
-                    WHERE "Name"=? AND "Level"=?;
-                """
-                val = (params[2], params[-1])
-                c.execute(VIEW, val)
-                sub_data = c.fetchone()
-                sub_id = sub_data[0]
+            sub = 'Subjects'
+            VIEW = f"""
+                SELECT * FROM {sub} 
+                WHERE "Name"=? AND "Level"=?;
+            """
+            val = (params[1], params[-1])
+            c.execute(VIEW, val)
+            sub_data = c.fetchone()
+            if sub_data == None:
+                return None
+            sub_id = sub_data[0]
 
+            VIEW = f"""
+                SELECT * FROM {self._tblname} 
+                WHERE "student_id"=? AND "subject_id"=?;
+            """
+            val = (student_id, sub_id)
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?);        
                 """
-
+    
                 params = (student_id, sub_id)
 
 
 
-            elif self._tblname == 'student_activity':
-                student = 'Student'
-                VIEW = f"""
-                    SELECT * FROM {student} 
-                    WHERE "Name"=?;
-                """
-                val = (name, )
-                c.execute(VIEW, val)
-                student_data = c.fetchone()
-                student_id = student_data[0]
+        elif self._tblname == 'student_activity':
+            student = 'Student'
+            VIEW = f"""
+                SELECT * FROM {student} 
+                WHERE "Name"=?;
+            """
+            val = (name, )
+            c.execute(VIEW, val)
+            student_data = c.fetchone()
+            if student_data == None:
+                return None
+            student_id = student_data[0]
 
-                act = 'Activity'
-                VIEW = f"""
-                    SELECT * FROM {act} 
-                    WHERE "Name"=?;
-                """
-                val = (params[2], )
-                c.execute(VIEW, val)
-                act_data = c.fetchone()
-                act_id = act_data[0]
+            act = 'Activity'
+            VIEW = f"""
+                SELECT * FROM {act} 
+                WHERE "Name"=?;
+            """
+            val = (params[2], )
+            c.execute(VIEW, val)
+            act_data = c.fetchone()
+            if act_data == None:
+                return None
+            act_id = act_data[0]
 
+
+            VIEW = f"""
+                SELECT * FROM {self._tblname} 
+                WHERE "student_id"=? AND "activity_id"=?;
+            """
+            val = (student_id, act_id)
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?, ?, ?, ?, ?);        
                 """
+    
+                params = (student_id, act_id, params[2], params[3], params[4], params[-1])
+            
+            
 
-                params = (student_id, act_id, params[3], params[4], params[5], params[-1])
-                
-                
+
+        elif self._tblname == 'student_cca':
+            student = 'Student'
+            VIEW = f"""
+                SELECT * FROM {student} 
+                WHERE "Name"=?;
+            """
+            val = (name, )
+            c.execute(VIEW, val)
+            student_data = c.fetchone()
+            if student_data == None:
+                return None
+            student_id = student_data[0]
+
+            cca = 'CCA'
+            VIEW = f"""
+                SELECT * FROM {cca} 
+                WHERE "Name"=?;
+            """
+            val = (params[1], )
+            c.execute(VIEW, val)
+            cca_data = c.fetchone()
+            if cca_data == None:
+                return None
+            cca_id = cca_data[0]
 
 
-            elif self._tblname == 'student_cca':
-                student = 'Student'
-                VIEW = f"""
-                    SELECT * FROM {student} 
-                    WHERE "Name"=?;
-                """
-                val = (name, )
-                c.execute(VIEW, val)
-                student_data = c.fetchone()
-                student_id = student_data[0]
-
-                cca = 'CCA'
-                VIEW = f"""
-                    SELECT * FROM {cca} 
-                    WHERE "Name"=?;
-                """
-                val = (params[2], )
-                c.execute(VIEW, val)
-                cca_data = c.fetchone()
-                print(params[2], cca_data)
-                cca_id = cca_data[0]
+            VIEW = f"""
+                SELECT * FROM {self._tblname} 
+                WHERE "student_id"=? AND "cca_id"=?;
+            """
+            val = (student_id, cca_id)
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
 
                 QUERY = f"""
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?, ?);        
                 """
-
+    
                 params = (student_id, cca_id, params[-1])
-                
-            c.execute(QUERY, params)
-
-        
-
-        else:
-            return 'RECORD ALREADY EXISTS GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+            
+        c.execute(QUERY, params)
         conn.commit()
         conn.close()
 
@@ -252,7 +333,7 @@ class Collection:
             c.execute(VIEW, val)
             student_data = c.fetchone()
             if student_data == None:
-                return 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+                return None
 
             VIEW = f"""
             SELECT * FROM {self._tblname} 
@@ -287,7 +368,7 @@ class Collection:
             c.execute(VIEW, val)
             cca_data = c.fetchone()
             if cca_data == None:
-                return 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+                return None
 
             VIEW = f"""
             SELECT * FROM {self._tblname} 
@@ -298,7 +379,7 @@ class Collection:
             ccaact_data = c.fetchone()
 
             if ccaact_data == None:
-                return 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+                return None
             
             act = 'Activity'
             VIEW = f"""
@@ -326,7 +407,7 @@ class Collection:
             c.execute(VIEW, val)
             student_data = c.fetchone()
             if student_data == None:
-                return 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+                return None
 
             VIEW = f"""
             SELECT * FROM {self._tblname} 
@@ -336,7 +417,7 @@ class Collection:
             c.execute(VIEW, val)
             studentact_data = c.fetchone()
             if studentact_data == None:
-                return 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+                return None
 
             
             act = 'Activity'
@@ -365,7 +446,7 @@ class Collection:
             student_data = c.fetchone()
             
             if student_data == None:
-                return 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+                return None
 
             VIEW = f"""
             SELECT * FROM {self._tblname} 
@@ -376,7 +457,7 @@ class Collection:
             studentcca_data = c.fetchone()
 
             if studentcca_data == None:
-                return 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+                return None
             
             cca = 'CCA'
             VIEW = f"""
@@ -404,7 +485,7 @@ class Collection:
             student_data = c.fetchone()
             
             if student_data == None:
-                return 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+                return None
 
             VIEW = f"""
             SELECT * FROM {self._tblname} 
@@ -415,7 +496,7 @@ class Collection:
             studentsub_data = c.fetchone()
 
             if studentsub_data == None:
-                return 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+                return None
             
             sub = 'Subjects'
             VIEW = f"""
@@ -441,7 +522,7 @@ class Collection:
         c.execute(VIEW, val)
         result = c.fetchone()
         if result == None:
-            return 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+            return result
 
         
         conn.commit()
@@ -816,89 +897,433 @@ class Collection:
         conn.close()
 
 
-
-    
-
-    def delete_record(self, name):
+    def delete_record(self, record):
         conn = sqlite3.connect(self._dbname)
         c = conn.cursor()
-        check = self.view_record(name)
-        if check == 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA':
-            return check
-
-        if self._tblname == 'student_class' or self._tblname == 'student_cca' or self._tblname == 'student_activity' or self._tblname == 'student_subject':
+        details = list(record.values())
+        name = details[0]
+        
+        if self._tblname == 'Subjects':
+            VIEW = f"""
+                SELECT * FROM {self._tblname} 
+                WHERE "Name"=? AND "Level"=?;
+            """
+            val = (name, details[1])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such subject exists.'
+            subject_data = check
             
+            query = f"""
+                    DELETE FROM {self._tblname}
+                    WHERE "Name" = ? AND "Level" = ?;
+                    """
+            val = (name, details[1])
+            c.execute(query, val)
+
+            ss = 'student_subject'
+            query = f"""
+                    DELETE FROM {ss}
+                    WHERE "subject_id" = ?;
+                    """
+            val = (subject_data[0], )
+            c.execute(query, val)
+
+            
+            conn.commit()
+            conn.close()
+
+        elif self._tblname == 'CCA':
+            VIEW = f"""
+                SELECT * FROM {self._tblname} 
+                WHERE "Name"=?;
+            """
+            val = (name, )
+            c.execute(VIEW, val)
+            data = c.fetchone()
+            if data == None:
+                return 'No such record exists.'
+                
+            DEL = f"""
+                    DELETE FROM {self._tblname} 
+                    WHERE "Name"=?;
+                """
+            val = (name, )
+            c.execute(DEL, val)
+            
+            sc = 'student_cca'
+            ca = 'cca_activity'
+            query = f"""
+            DELETE FROM {sc}
+            WHERE "cca_id" = ?;
+            """
+            val = (data[0], )
+            c.execute(query, val)
+            
+            query = f"""
+            DELETE FROM {ca}
+            WHERE "cca_id" = ?;
+            """
+            val = (data[0], )
+            c.execute(query, val)
+            conn.commit()
+            conn.close()
+            self.reorder()
+
+        elif self._tblname == 'Activity':
+            VIEW = f"""
+                SELECT * FROM {self._tblname} 
+                WHERE "Name"=?;
+            """
+            val = (name, )
+            c.execute(VIEW, val)
+            data = c.fetchone()
+            if data == None:
+                return 'No such record exists.'
+                
+            DEL = f"""
+                    DELETE FROM {self._tblname} 
+                    WHERE "Name"=?;
+                """
+            val = (name, )
+            c.execute(DEL, val)
+            
+            sa = 'student_activity'
+            ca = 'cca_activity'
+            query = f"""
+            DELETE FROM {sa}
+            WHERE "activity_id" = ?;
+            """
+            val = (data[0], )
+            c.execute(query, val)
+            
+            query = f"""
+            DELETE FROM {ca}
+            WHERE "activity_id" = ?;
+            """
+            val = (data[0], )
+            c.execute(query, val)
+            conn.commit()
+            conn.close()
+            self.reorder()
+
+
+        elif self._tblname == 'Student':
+            VIEW = f"""
+                SELECT * FROM {self._tblname} 
+                WHERE "Name"=?;
+            """
+            val = (name, )
+            c.execute(VIEW, val)
+            data = c.fetchone()
+            if data == None:
+                return 'No such record exists.'
+                
+            DEL = f"""
+                    DELETE FROM {self._tblname} 
+                    WHERE "Name"=?;
+                """
+            val = (name, )
+            c.execute(DEL, val)
+            
+            sa = 'student_activity'
+            ss = 'student_subject'
+            sc = 'student_cca'
+            scla = 'student_class'
+            
+            query = f"""
+            DELETE FROM {sa}
+            WHERE "student_id" = ?;
+            """
+            val = (data[0], )
+            c.execute(query, val)
+            
+            query = f"""
+            DELETE FROM {sc}
+            WHERE "student_id" = ?;
+            """
+            val = (data[0], )
+            c.execute(query, val)
+
+            query = f"""
+            DELETE FROM {ss}
+            WHERE "student_id" = ?;
+            """
+            val = (data[0], )
+            c.execute(query, val)
+            
+            query = f"""
+            DELETE FROM {scla}
+            WHERE "student_id" = ?;
+            """
+            val = (data[0], )
+            c.execute(query, val)
+            
+            conn.commit()
+            conn.close()
+            self.reorder()
+
+        elif self._tblname == 'Class':
+            VIEW = f"""
+                SELECT * FROM {self._tblname} 
+                WHERE "Name"=?;
+            """
+            val = (name, )
+            c.execute(VIEW, val)
+            data = c.fetchone()
+            if data == None:
+                return 'No such record exists.'
+                
+            DEL = f"""
+                    DELETE FROM {self._tblname} 
+                    WHERE "Name"=?;
+                """
+            val = (name, )
+            c.execute(DEL, val)
+            
+            sc = 'student_class'
+            query = f"""
+            DELETE FROM {sc}
+            WHERE "class_id" = ?;
+            """
+            val = (data[0], )
+            c.execute(query, val)
+            conn.commit()
+            conn.close()
+            self.reorder()
+
+        elif self._tblname == 'student_subject':
+            student_name = details[0]
             student = 'Student'
-            VIEW = f"""SELECT * FROM {student} 
-                        WHERE "Name"=?;"""
-            val = (name, )
-            c.execute(VIEW, val)
-            student_data = c.fetchone()
-            
-            CHECK = f""" 
-                        SELECT * FROM {self._tblname}
-                        WHERE "student_id"=?;"""
-            
-            val = (student_data[0], )
-            c.execute(CHECK, val)
-            result = c.fetchone()
-            if result == None:
-                return 'No such record exists.'
-            
-            query = f"""
-                DELETE FROM {self._tblname}
-                WHERE "student_id" = ?;
+            VIEW = f"""
+                SELECT * FROM {student} 
+                WHERE "Name"=?;
             """
-            val = (student_data[0], )
-            c.execute(query, val)
+            val = (student_name, )
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such student exists.'
+            student_data = check
+
+            sub = 'Subjects'
+            VIEW = f"""
+                    SELECT * FROM {sub}
+                    WHERE "Name" = ? AND "Level" = ?;
+                    """
+            val = (details[1], details[2])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such subject exists.'
+            subject_data = check
+
+            VIEW = f"""
+                    SELECT * FROM {self._tblname}
+                    WHERE "student_id" = ? AND "subject_id" = ?;
+                    """
+            val = (student_data[0], subject_data[0])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'That student does not even take that subject.'
+                
+            DEL = f"""
+                    DELETE FROM {self._tblname}
+                    WHERE "student_id" = ? AND "subject_id" = ?;
+                    """
+            val = (student_data[0], subject_data[0])
+            c.execute(DEL, val)
             conn.commit()
             conn.close()
-            return ''
+
+        elif self._tblname == 'student_class':
+            student_name = details[0]
+            student = 'Student'
+            VIEW = f"""
+                SELECT * FROM {student} 
+                WHERE "Name"=?;
+            """
+            val = (student_name, )
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such record exists.'
+            student_data = check
+
+            cla = 'Class'
+            VIEW = f"""
+                    SELECT * FROM {cla}
+                    WHERE "Name" = ?;
+                    """
+            val = (details[1], )
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such record exists.'
+            class_data = check
+
+            VIEW = f"""
+                    SELECT * FROM {self._tblname}
+                    WHERE "student_id" = ? AND "class_id" = ?;
+                    """
+            val = (student_data[0], class_data[0])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such record exists.'
+                
+            DEL = f"""
+                    DELETE FROM {self._tblname}
+                    WHERE "student_id" = ? AND "class_id" = ?;
+                    """
+            val = (student_data[0], class_data[0])
+            c.execute(DEL, val)
+            conn.commit()
+            conn.close()
 
 
+        elif self._tblname == 'student_cca':
+            student_name = details[0]
+            student = 'Student'
+            VIEW = f"""
+                SELECT * FROM {student} 
+                WHERE "Name"=?;
+            """
+            val = (student_name, )
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such record exists.'
+            student_data = check
 
-
-        if self._tblname == 'cca_activity':
-            
             cca = 'CCA'
-            VIEW = f"""SELECT * FROM {cca} 
-                        WHERE "Name"=?;"""
-            val = (name, )
+            VIEW = f"""
+                    SELECT * FROM {cca}
+                    WHERE "Name" = ?;
+                    """
+            val = (details[1], )
             c.execute(VIEW, val)
-            cca_data = c.fetchone()
-            
-            CHECK = f""" 
-                        SELECT * FROM {self._tblname}
-                        WHERE "cca_id"=?;"""
-            
-            val = (cca_data[0], )
-            c.execute(CHECK, val)
-            result = c.fetchone()
-            if result == None:
+            check = c.fetchone()
+            if check == None:
                 return 'No such record exists.'
-            
-            query = f"""
-                DELETE FROM {self._tblname}
-                WHERE "cca_id" = ?;
-            """
-            val = (cca_data[0], )
-            c.execute(query, val)
+            cca_data = check
+
+            VIEW = f"""
+                    SELECT * FROM {self._tblname}
+                    WHERE "student_id" = ? AND "cca_id" = ?;
+                    """
+            val = (student_data[0], cca_data[0])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such record exists.'
+                
+            DEL = f"""
+                    DELETE FROM {self._tblname}
+                    WHERE "student_id" = ? AND "cca_id" = ?;
+                    """
+            val = (student_data[0], cca_data[0])
+            c.execute(DEL, val)
             conn.commit()
             conn.close()
-            return ''
+
+
+        elif self._tblname == 'student_activity':
+            student_name = details[0]
+            student = 'Student'
+            VIEW = f"""
+                SELECT * FROM {student} 
+                WHERE "Name"=?;
+            """
+            val = (student_name, )
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such record exists.'
+            student_data = check
+
+            a = 'Activity'
+            VIEW = f"""
+                    SELECT * FROM {a}
+                    WHERE "Name" = ?;
+                    """
+            val = (details[1], )
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such record exists.'
+            act_data = check
+
+            VIEW = f"""
+                    SELECT * FROM {self._tblname}
+                    WHERE "student_id" = ? AND "activity_id" = ?;
+                    """
+            val = (student_data[0], act_data[0])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such record exists.'
+                
+            DEL = f"""
+                    DELETE FROM {self._tblname}
+                    WHERE "student_id" = ? AND "activity_id" = ?;
+                    """
+            val = (student_data[0], act_data[0])
+            c.execute(DEL, val)
+            conn.commit()
+            conn.close()
+
+
+        elif self._tblname == 'cca_activity':
+            cca_name = details[0]
+            cca = 'CCA'
+            VIEW = f"""
+                SELECT * FROM {cca} 
+                WHERE "Name"=?;
+            """
+            val = (cca_name, )
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such record exists.'
+            cca_data = check
+
+            a = 'Activity'
+            VIEW = f"""
+                    SELECT * FROM {a}
+                    WHERE "Name" = ?;
+                    """
+            val = (details[1], )
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such record exists.'
+            act_data = check
+
+            VIEW = f"""
+                    SELECT * FROM {self._tblname}
+                    WHERE "cca_id" = ? AND "activity_id" = ?;
+                    """
+            val = (cca_data[0], act_data[0])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return 'No such record exists.'
+                
+            DEL = f"""
+                    DELETE FROM {self._tblname}
+                    WHERE "cca_id" = ? AND "activity_id" = ?;
+                    """
+            val = (cca_data[0], act_data[0])
+            c.execute(DEL, val)
+            conn.commit()
+            conn.close()
+
 
         
-
-        query = f"""
-            DELETE FROM {self._tblname}
-            WHERE "Name" = ?;
-        """
-        val = (name, )
-        c.execute(query, val)
-        conn.commit()
-        conn.close()
-        self.reorder()
-
+    
 
     
 

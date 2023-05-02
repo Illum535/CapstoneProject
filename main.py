@@ -186,8 +186,8 @@ def update_act():
 if __name__ == "__main__":
    app.run('0.0.0.0')
 
-# from storage import CCAActivityCollection
-# c = CCAActivityCollection()
-# c.delete_record('Floorball')
+# from storage import StudentCollection
+# c = StudentCollection()
+# # c.add_record({'a':'Tan Yi Rui', 'b':'ECON', 'c':'H2'})
 # b = c.view_all()
 # print(b)
