@@ -1,7 +1,7 @@
 from storage import *
 from flask import Flask, render_template, request, redirect
 
-coll = {
+coll = { # Backend implementation, creating collections for the different tables bravo Dylan
     'activity': ActivityCollection(),
     'cca': CCACollection(),
     'class': ClassCollection(),
@@ -14,14 +14,14 @@ coll = {
     'cca_activity': CCAActivityCollection()
 }
 
-cca_act_class_ext = ['students']
+cca_act_class_ext = ['students'] # Extra headers used for /view webpages for cca, activity, class and subject
 
 default_values = {
     'student_ccarole': 'member',
     'student_activityrole': 'participant'
 }
 
-ext_headers = {
+ext_headers = { # Full dictionary for extra headers used for /view webpages
     'activity': cca_act_class_ext,
     'cca': cca_act_class_ext + ['activities'],
     'class': cca_act_class_ext,
@@ -33,7 +33,7 @@ ext_headers = {
     'subject': cca_act_class_ext
 }
 
-radio_options = {
+radio_options = { # Dictionary for the different options when using the radio input type for different inputs
     'student_activitycategory': [
         'achievement',
         'enrichment',
@@ -56,7 +56,7 @@ radio_options = {
     ]
 }
 
-add_form_type = {
+add_form_type = { # Dictionary for all the different input types for the add forms
     'student': {
         'name': 'text',
         'age': 'number',
@@ -119,17 +119,17 @@ add_form_type = {
 
 update_form_type = {}
 
-for type, headers in add_form_type.items():
-    if '_' in type:
+for type, headers in add_form_type.items(): # To create a dictionary with all the input types for the update forms
+    if '_' in type: # Check for collection using multiple tables
         types = type.split('_')
         update_form_type[type] = {
-            f'{types[0]}_name': 'text',
+            f'{types[0]}_name': 'text', # For name fields belonging to each corresponding table
             f'{types[1]}_name': 'text'
         }
-        count = 2
+        count = 2 
         
     else:
-        update_form_type[type] = {'name': 'text'}
+        update_form_type[type] = {'name': 'text'} 
         count = 0
     
     for header, value in headers.items():
@@ -138,118 +138,118 @@ for type, headers in add_form_type.items():
         else:
             count -= 1
 
-def add_data(update_or_add, path, type, form_data = None):
+def add_data(update_or_add, path, type, form_data = None): # Function for adding and updating data
     data = {}
-    paths = {
+    paths = { # Form actions for different stages in adding/updating data
         '': f'/{update_or_add}_{type}?confirm',
         'confirm': f'/{update_or_add}_{type}?success',
         'success': f'/{update_or_add}_{type}',
         'fail': f'/{update_or_add}_{type}?confirm'
     }
-    fail_msg = {
+    fail_msg = { # Corresponding message when failed to add/update data
         'add': 'already in database.',
         'update': 'not in database.'
     }
     
     if path == 'fail':
-        data['msg'] = fail_msg[update_or_add]
+        data['msg'] = fail_msg[update_or_add] # Adding fail msg to the returned dictionary
         
-    for key, act in paths.items():
+    for key, act in paths.items(): # Finding the correct form action to be returned
         if key == path:
             action = act
 
-    data['form_meta'] = {
+    data['form_meta'] = { # Adding the form meta
         'action': action,
         'method': 'post'
     }
-    if update_or_add == 'add':
+    if update_or_add == 'add': # Using the dictionaries to add the input types for the forms
         data['form_type'] = add_form_type[type]
 
     else:
         data['form_type'] = update_form_type[type]
     
-    if form_data:
+    if form_data: # If form is filled in
         data['form_data'] = form_data
         for key in form_data.keys():
             new_key = f"{type}{key.replace('new_', '')}"
-            if new_key in list(radio_options.keys()):
+            if new_key in list(radio_options.keys()): # checking if any data entered is a radio input
                 data['checked'] = form_data[key]
-                data['form_data'][key] = radio_options[new_key]
+                data['form_data'][key] = radio_options[new_key] # making sure the default checked radio option is the given input
                     
 
-    else:
-        if update_or_add == 'add':
+    else: # If form is not filled in
+        if update_or_add == 'add': # Making the dictionary for the empty form data
             data['form_data'] = add_form_type[type].copy()
         else:
             data['form_data'] = update_form_type[type].copy()
 
-        for key, value in data['form_data'].items():
-                if value == 'radio':
+        for key, value in data['form_data'].items(): # Converting the form type values into empty values
+                if value == 'radio': # Checking if value is a radio input
                     new_key = f"{type}{key.replace('new_', '')}"
-                    data['form_data'][key] = radio_options[new_key]
+                    data['form_data'][key] = radio_options[new_key] # making the form data value be a list of the radio options
                     
-                elif f"{type}{key.replace('new_', '')}" in default_values.keys():
-                    data['form_data'][key] = default_values[f"{type}{key.replace('new_', '')}"]
+                elif f"{type}{key.replace('new_', '')}" in default_values.keys(): # if value is supposed to have a default value
+                    data['form_data'][key] = default_values[f"{type}{key.replace('new_', '')}"] # assigning the value to be the corresponding default value
 
                 else:
-                    data['form_data'][key] = ''
+                    data['form_data'][key] = '' # Empty value if does not fit any criteria
 
-    data['check'] = type
-    data['path'] = path
-    data['page_type'] = update_or_add
+    data['check'] = type # adding form type as a check in the html later on
+    data['path'] = path # adding the stage in which the adding/updating is in
+    data['page_type'] = update_or_add # adding information on if the page is for adding or updating
     return data
 
-foreign_table_names = {
+foreign_table_names = { # To convert the html request arguments into the proper collection names
         'students': 'student',
         'activities': 'activity',
         'ccas': 'cca',
         'subjects': 'subject',
     }
 
-def view_data(type, main = '', foreign_table = ''):
+def view_data(type, main = '', foreign_table = ''): # Function for the /view webpages
     data = {}
     
-    data['check'] = type
-    data['main'] = main
+    data['check'] = type # adding form type as a check in the html
+    data['main'] = main # adding what is the main record to focus on in the collection, is empty string if none
     data['data'] = []
-    data['foreign'] = foreign_table
-    data['form_type'] = add_form_type[type]
+    data['foreign'] = foreign_table # adding what is the foreign table to be focused on, is empty string if none
+    data['form_type'] = add_form_type[type] # adding form input type for when editing/deleting data using /view pages
     
-    if foreign_table:
-        foreign_table = foreign_table_names[foreign_table]
-        if foreign_table == 'student':
-            form_index = f'{foreign_table}_{type}'
-            index = 1
+    if foreign_table: # if foreign table is focused
+        foreign_table = foreign_table_names[foreign_table] # finding the correct name of the collection for the foreign table
+        if foreign_table == 'student': # special case for when foreign is student changing the convention for the key used in the coll dict
+            form_index = f'{foreign_table}_{type}' # key for the multi table in the coll dict
+            index = 1 # the index for the main records name in the given data from the multi table coll
         else:
-            form_index = f'{type}_{foreign_table}'
-            index = 0
+            form_index = f'{type}_{foreign_table}' # key for the multi table in the coll dict
+            index = 0 # the index for the main records name in the given data from the multi table coll
 
-        header = list(add_form_type[form_index].keys())
-        data['form_type'] = add_form_type[form_index]
-        records = coll[form_index].view_all()
+        header = list(add_form_type[form_index].keys()) # getting headers for the multi table data
+        data['form_type'] = add_form_type[form_index] # adding form input types
+        records = coll[form_index].view_all() # getting all the data from the multi coll
         data['records'] = []
-        data['data'] = dict(zip(add_form_type[type].keys(), coll[type].view_record(main)))
+        data['data'] = dict(zip(add_form_type[type].keys(), coll[type].view_record(main))) # getting the data on the main record focused on
         header.pop(index)
         for record in records:
             if main in record:
                 record = list(record)
                 record.pop(index)
-                data['records'].append(dict(zip(header, record)))
+                data['records'].append(dict(zip(header, record))) # adding each record from the multi table coll corresponding to the main record
 
-        data['records'] = dict(enumerate(data['records']))
+        data['records'] = dict(enumerate(data['records'])) # numbering the records
         data['no_of_headers'] = len(header)
-        if 'level' in header:
+        if 'level' in header: # special case for student_subject such that 'level' header is not considered editable
             data['no_of_headers'] -= 1
             
-        header = dict(enumerate(header))
-        for key, value in data['form_type'].items():
+        header = dict(enumerate(header)) # numbering the headers
+        for key, value in data['form_type'].items(): # check if any radio inputs
             if value == "radio":
-                data['options'] = radio_options[f'{form_index}{key}']
+                data['options'] = radio_options[f'{form_index}{key}'] # adding the radio options if there is radio input, becomes a dropdown for /view
     
-    else:
-        header = list(add_form_type[type].keys())
+    else: # if nothing is focused
+        header = list(add_form_type[type].keys()) # headers for the coll
         
-        records = coll[type].view_all()
+        records = coll[type].view_all() # getting data from coll
     
         for record in records:
             record = dict(zip(header, record))
@@ -258,113 +258,113 @@ def view_data(type, main = '', foreign_table = ''):
             for key, value in ext_headers.items():
                 if key == type:
                     for extra in value:
-                        record[extra] = [f'View {extra}', f'/view_{type}?{main}&{extra}']
+                        record[extra] = [f'View {extra}', f'/view_{type}?{main}&{extra}'] # adding extra headers for the main and foreign table functionality
     
                     break
             
-            data['data'].append(record)
+            data['data'].append(record) # adding each record into the data
 
         
-        data['extra'] = value
-        for key, value in data['form_type'].items():
+        data['extra'] = value # adding the list of extra headers
+        for key, value in data['form_type'].items(): # check for any radio inputs
             if value == "radio":
-                data['options'] = radio_options[f'{type}{key}']
+                data['options'] = radio_options[f'{type}{key}'] # adding radio input options, dropdown for /view
                 
-        header = dict(enumerate(header + ext_headers[type]))
-        data['data'] = dict(enumerate(data['data']))
+        header = dict(enumerate(header + ext_headers[type])) # numbering the headers
+        data['data'] = dict(enumerate(data['data'])) # numbering the records
 
     
-    data['header'] = header
+    data['header'] = header # adding the headers
     return data
 
-def get_update_data(view_or_update, record, is_multi = False, args = None, type = None):
-    if view_or_update == 'view':
-        if is_multi:
+def get_update_data(view_or_update, record, is_multi = False, args = None, type = None): # for getting data when updating records
+    if view_or_update == 'view': # if updated through /view
+        if is_multi: # check for multi table coll
             values = list(record.values())
             keys = list(record.keys())
 
-            if 'students' in args:
+            if 'students' in args: # special case for if student table is the foreign table
                 name = values[1]
                 record = [values[0]] + values[2:]
-                coll_index = f'{foreign_table_names[args[1]]}_{type}'
+                coll_index = f'{foreign_table_names[args[1]]}_{type}' # changing coll key for the correct coll to be used
             else:
                 name = values[0]
                 record = values[1:]
-                coll_index = f'{type}_{foreign_table_names[args[1]]}'
+                coll_index = f'{type}_{foreign_table_names[args[1]]}' # changing coll key for the correct coll to be used
                 
                 
             new_record = {}
             for index, value in enumerate(record):
                 if index % 2 == 0:
-                    new_record[keys[1:][index]] = value
+                    new_record[keys[1:][index]] = value # retrieving new inputted data and excluding the old data
 
             return (name, new_record, coll_index)
-            
-        name = record['old_name']
+        # if not multi table coll
+        name = record['old_name'] # find name of main record
         new_record = {}
         for key in record.keys():
             if 'old' not in key:
-                new_record[key] = record[key]
+                new_record[key] = record[key] # retrieving new data and removing old data
 
-    else:
+    else: # else if updated through /update
         new_record = {}
-        if is_multi:
-            name = record['student_name']
-            new_record[list(record.keys())[1]] = list(record.values())[1]
+        if is_multi: # if multi table coll
+            name = record['student_name'] # retrieve student name
+            new_record[list(record.keys())[1]] = list(record.values())[1] # adding other tables name value
         else:
             name = record['name']
             
-        for key in record.keys():
+        for key in record.keys(): # for updating record keys to not have "new_"
             if 'new' in key:
                 new_record[key.replace('new_', '')] = record[key]
 
     return (name, new_record)
 
-def add_update(update_or_add, type, rqst):
-    if rqst.args:
-        if not dict(rqst.form).values():
+def add_update(update_or_add, type, rqst): # add/update function for rendering add/update forms
+    if rqst.args: # checks if form is in 'success' or 'confirm' stages
+        if not dict(rqst.form).values(): # if no data entered redirect back to first stage
             return redirect(f"/{update_or_add}_{type}")
-        if 'success' in rqst.args:
-            if update_or_add == 'add':
-                result = coll[type].add_record(dict(rqst.form))
+        if 'success' in rqst.args: # if 'success' stage
+            if update_or_add == 'add': # if is /add
+                result = coll[type].add_record(dict(rqst.form)) # add the record
             else:
-                if '_' in type:
-                    data = get_update_data('update', dict(rqst.form), True)
+                if '_' in type: # if multi table
+                    data = get_update_data('update', dict(rqst.form), True) # get data for multi table coll
                 else:
-                    data = get_update_data('update', dict(rqst.form))
+                    data = get_update_data('update', dict(rqst.form)) # get data for single table coll
 
-                result = coll[type].edit_record(data[0], data[1])
+                result = coll[type].edit_record(data[0], data[1]) # edit the data
                 
-            if result:
-                return render_template('add_update.html', data = add_data(update_or_add, 'fail', type = type, form_data = dict(rqst.form)))
+            if result: # if failed to add/update
+                return render_template('add_update.html', data = add_data(update_or_add, 'fail', type = type, form_data = dict(rqst.form))) # fail page
         
-        return render_template('add_update.html', data = add_data(update_or_add, list(request.args)[0], type = type, form_data = dict(rqst.form)))
+        return render_template('add_update.html', data = add_data(update_or_add, list(request.args)[0], type = type, form_data = dict(rqst.form))) # 'confirm' or 'success' page
     
-    return render_template('add_update.html', data = add_data(update_or_add, '', type = type))
+    return render_template('add_update.html', data = add_data(update_or_add, '', type = type)) # first stage page
 
-def view(type, rqst):
-    if rqst.args:
+def view(type, rqst): # view function for rendering /view pages
+    if rqst.args: # checks if to focus on any records or to edit/delete
         args = list(rqst.args)
-        if 'edit' in rqst.args:
-            if len(rqst.args) > 1:
-                data = get_update_data('view', dict(rqst.form), True, args, type)
-                coll[data[2]].edit_record(data[0], data[1])
-                return redirect(f'/view_{type}?{args[0]}&{args[1]}')
+        if 'edit' in rqst.args: # if to edit data
+            if len(rqst.args) > 1: # if multi table coll update
+                data = get_update_data('view', dict(rqst.form), True, args, type) # gets data for updating multi table coll data
+                coll[data[2]].edit_record(data[0], data[1]) # edits the data
+                return redirect(f'/view_{type}?{args[0]}&{args[1]}') # redirects to the same page
                 
-            data = get_update_data('view', dict(rqst.form))
-            coll[type].edit_record(data[0], data[1])
-            return redirect(f'/view_{type}')
+            data = get_update_data('view', dict(rqst.form)) # gets data for updating single table coll data
+            coll[type].edit_record(data[0], data[1]) # edit the data
+            return redirect(f'/view_{type}') # redirects to the same page
             
-        elif 'delete' in rqst.args:
-            if len(rqst.args) > 1:
-                data = get_update_data('view', dict(rqst.form), True, args, type)
-                coll[data[2]].delete_record(data[0])
-                return redirect(f'/view_{type}?{args[0]}&{args[1]}')
+        elif 'delete' in rqst.args: # if deleting data
+            if len(rqst.args) > 1: # if multi table coll delete
+                data = get_update_data('view', dict(rqst.form), True, args, type) # gets data for deleting multi table coll data
+                coll[data[2]].delete_record(data[0]) # deletes the data
+                return redirect(f'/view_{type}?{args[0]}&{args[1]}') # redirects to the same page
                 
-            data = get_update_data('view', dict(rqst.form))
-            coll[type].delete_record(data[0])
-            return redirect(f'/view_{type}')
+            data = get_update_data('view', dict(rqst.form)) # gets data for deleting single table coll data
+            coll[type].delete_record(data[0]) # deletes data
+            return redirect(f'/view_{type}') # redirects to the same page
             
-        return render_template('view.html', data = view_data(type, args[0], args[1]))
+        return render_template('view.html', data = view_data(type, args[0], args[1])) # renders data when focused on multi table coll
         
-    return render_template('view.html', data = view_data(type))
+    return render_template('view.html', data = view_data(type)) # renders main records

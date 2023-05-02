@@ -108,7 +108,7 @@
                                     {% for key, value in record.items() %}
                                         <td>
                                             <input type='hidden' name='old_{{key}}' value="{{value}}">
-                                            {% if 'name' not in key %}
+                                            {% if 'name' not in key and data['no_of_headers'] > 1 %}
                                                 {% if data['form_type'][key] != 'radio' %}
                                                     <input class='{{id}}' type='hidden' name='{{key}}' value="{{value}}">
                                                 {% else %}
