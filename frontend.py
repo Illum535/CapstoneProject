@@ -248,11 +248,15 @@ def view_data(type, main = '', foreign_table = ''): # Function for the /view web
     
     else: # if nothing is focused
         header = list(add_form_type[type].keys()) # headers for the coll
-        
+        if type == 'student': # add class header if viewing students
+            header += ['class']
         records = coll[type].view_all() # getting data from coll
     
         for record in records:
-            record = dict(zip(header, record))
+            record = dict(zip(header, record)) # convert record into a dict
+            if type == 'student': # if viewing students
+                class_data = coll['student_class'].view_record(record['name'])
+                record['class'] = class_data[1] # add class to record
             
             main = list(record.values())[0]
             for key, value in ext_headers.items():
@@ -311,14 +315,44 @@ def get_update_data(view_or_update, record, is_multi = False, args = None, type 
         if is_multi: # if multi table coll
             name = record['student_name'] # retrieve student name
             new_record[list(record.keys())[1]] = list(record.values())[1] # adding other tables name value
+
         else:
             name = record['name']
             
         for key in record.keys(): # for updating record keys to not have "new_"
             if 'new' in key:
                 new_record[key.replace('new_', '')] = record[key]
-
+    
     return (name, new_record)
+
+def get_delete_data(record, type = None, args = None):
+    new_record = {}
+    for key, value in record.items():
+        if 'old' in key:
+            new_record[key.replace('old_', '')] = value
+
+    if args and type:
+        if 'students' in args: # special case for if student table is the foreign table
+            coll_index = f'{foreign_table_names[args[1]]}_{type}' # changing coll key for the correct coll to be used
+            old_record = new_record.copy()
+            new_record = {
+                'student_name': old_record['student_name'],
+                list(old_record.keys())[0]: list(old_record.values())[0]
+            }
+            index = 2
+            while index < len(list(old_record.values())):
+                new_record[list(old_record.keys())[index]] = list(old_record.values())[index]
+                index += 1
+
+            
+        else:
+            coll_index = f'{type}_{foreign_table_names[args[1]]}' # changing coll key for the correct coll to be used
+    else:
+        coll_index = type
+
+    return (new_record, coll_index)
+
+    
 
 def add_update(update_or_add, type, rqst): # add/update function for rendering add/update forms
     if rqst.args: # checks if form is in 'success' or 'confirm' stages
@@ -357,11 +391,11 @@ def view(type, rqst): # view function for rendering /view pages
             
         elif 'delete' in rqst.args: # if deleting data
             if len(rqst.args) > 1: # if multi table coll delete
-                data = get_update_data('view', dict(rqst.form), True, args, type) # gets data for deleting multi table coll data
-                coll[data[2]].delete_record(data[0]) # deletes the data
+                data = get_delete_data(dict(rqst.form), type, args) # gets data for deleting multi table coll data
+                coll[data[1]].delete_record(data[0]) # deletes the data
                 return redirect(f'/view_{type}?{args[0]}&{args[1]}') # redirects to the same page
                 
-            data = get_update_data('view', dict(rqst.form)) # gets data for deleting single table coll data
+            data = get_delete_data(dict(rqst.form), type) # gets data for deleting single table coll data
             coll[type].delete_record(data[0]) # deletes data
             return redirect(f'/view_{type}') # redirects to the same page
             
