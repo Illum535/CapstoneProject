@@ -95,6 +95,20 @@ def add_student_activity():
     '''
     return add_update('add', 'student_activity', request)
 
+@app.route("/add_student_subject", methods = ['POST', 'GET'])
+def add_student_subject():
+    '''
+    Returns the page at path '/add_student_subject' to add an existing subject to an existing student
+    '''
+    return add_update('add', 'student_subject', request)
+
+@app.route("/add_cca_activity", methods = ['POST', 'GET'])
+def add_cca_activity():
+    '''
+    Returns the page at path '/add_cca_activity' to add an existing activity to an existing cca
+    '''
+    return add_update('add', 'cca_activity', request)
+
 
 @app.route('/view_student', methods = ['GET', 'POST'])
 def view_student():
