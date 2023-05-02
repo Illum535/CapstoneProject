@@ -248,11 +248,15 @@ def view_data(type, main = '', foreign_table = ''): # Function for the /view web
     
     else: # if nothing is focused
         header = list(add_form_type[type].keys()) # headers for the coll
-        
+        if type == 'student': # add class header if viewing students
+            header += ['class']
         records = coll[type].view_all() # getting data from coll
     
         for record in records:
-            record = dict(zip(header, record))
+            record = dict(zip(header, record)) # convert record into a dict
+            if type == 'student': # if viewing students
+                class_data = coll['student_class'].view_record(record['name'])
+                record['class'] = class_data[1] # add class to record
             
             main = list(record.values())[0]
             for key, value in ext_headers.items():
