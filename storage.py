@@ -28,10 +28,10 @@ class Collection:
         c = conn.cursor()
         params = tuple(record.values())
         name = params[0]
-        check = self.view_record(name)
         
             
         if self._tblname == 'CCA':
+            check = self.view_record(name)
             if check == None:
                 id = self.add_id()
                 params = list(params)
@@ -41,8 +41,11 @@ class Collection:
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?, ?);        
                 """
+            else:
+                return False
 
         elif self._tblname == 'Activity':
+            check = self.view_record(name)
             if check == None:
                 id = self.add_id()
                 params = list(params)
@@ -52,8 +55,11 @@ class Collection:
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?, ?, ?, ?);        
                 """
+            else:
+                return False
 
         elif self._tblname == 'Class':
+            check = self.view_record(name)
             if check == None:
                 id = self.add_id()
                 params = list(params)
@@ -63,8 +69,11 @@ class Collection:
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?, ?);        
                 """
+            else:
+                return False
 
         elif self._tblname == 'Student':
+            check = self.view_record(name)
             if check == None:
                 id = self.add_id()
                 params = list(params)
@@ -74,6 +83,9 @@ class Collection:
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?, ?, ?, ?);        
                 """
+            else:
+                return False
+            
             
         elif self._tblname == 'Subjects':
             VIEW = f"""
@@ -92,23 +104,35 @@ class Collection:
                     INSERT INTO {self._tblname} 
                     VALUES (?, ?, ?);        
                 """
+            else:
+                return False
 
         
         elif self._tblname == 'student_class':
+            student = 'Student'
+            VIEW = f"""
+            SELECT * FROM {student} 
+            WHERE "Name"=?;
+            """
+            val = (name, )
+            c.execute(VIEW, val)
+            student_data = c.fetchone()
+            if student_data == None:
+                return False
+
+            VIEW = f"""
+            SELECT * FROM {self._tblname} 
+            WHERE "student_id"=?;
+            """
+            val = (student_data[0], )
+            c.execute(VIEW, val)
+            check = c.fetchone()
             if check == None:
                 id = self.add_id()
                 params = list(params)
                 params.insert(0, id)
                 params = tuple(params)
             
-                student = 'Student'
-                VIEW = f"""
-                    SELECT * FROM {student} 
-                    WHERE "Name"=?;
-                """
-                val = (name, )
-                c.execute(VIEW, val)
-                student_data = c.fetchone()
                 student_id = student_data[0]
     
                 theclass = 'Class'
@@ -120,7 +144,7 @@ class Collection:
                 c.execute(VIEW, val)
                 class_data = c.fetchone()
                 if class_data == None:
-                    return None
+                    return False
                 class_id = class_data[0]
     
                 QUERY = f"""
@@ -129,6 +153,9 @@ class Collection:
                 """
     
                 params = (student_id, class_id)
+
+            else:
+                return False
 
 
         elif self._tblname == 'cca_activity':
@@ -141,7 +168,7 @@ class Collection:
             c.execute(VIEW, val)
             cca_data = c.fetchone()
             if cca_data == None:
-                return None
+                return False
             cca_id = cca_data[0]
 
             act = 'Activity'
@@ -153,7 +180,7 @@ class Collection:
             c.execute(VIEW, val)
             act_data = c.fetchone()
             if act_data == None:
-                return None
+                return False
             act_id = act_data[0]
 
 
@@ -171,7 +198,9 @@ class Collection:
                 """
     
                 params = (cca_id, act_id)
-
+            else:
+                return False
+                
         elif self._tblname == 'student_subject':
             student = 'Student'
             VIEW = f"""
@@ -182,7 +211,7 @@ class Collection:
             c.execute(VIEW, val)
             student_data = c.fetchone()
             if student_data == None:
-                return None
+                return False
             student_id = student_data[0]
 
             sub = 'Subjects'
@@ -194,7 +223,7 @@ class Collection:
             c.execute(VIEW, val)
             sub_data = c.fetchone()
             if sub_data == None:
-                return None
+                return False
             sub_id = sub_data[0]
 
             VIEW = f"""
@@ -211,6 +240,8 @@ class Collection:
                 """
     
                 params = (student_id, sub_id)
+            else:
+                return False
 
 
 
@@ -224,7 +255,7 @@ class Collection:
             c.execute(VIEW, val)
             student_data = c.fetchone()
             if student_data == None:
-                return None
+                return False
             student_id = student_data[0]
 
             act = 'Activity'
@@ -232,11 +263,11 @@ class Collection:
                 SELECT * FROM {act} 
                 WHERE "Name"=?;
             """
-            val = (params[2], )
+            val = (params[1], )
             c.execute(VIEW, val)
             act_data = c.fetchone()
             if act_data == None:
-                return None
+                return False
             act_id = act_data[0]
 
 
@@ -254,7 +285,8 @@ class Collection:
                 """
     
                 params = (student_id, act_id, params[2], params[3], params[4], params[-1])
-            
+            else:
+                return False
             
 
 
@@ -268,7 +300,7 @@ class Collection:
             c.execute(VIEW, val)
             student_data = c.fetchone()
             if student_data == None:
-                return None
+                return False
             student_id = student_data[0]
 
             cca = 'CCA'
@@ -280,7 +312,7 @@ class Collection:
             c.execute(VIEW, val)
             cca_data = c.fetchone()
             if cca_data == None:
-                return None
+                return False
             cca_id = cca_data[0]
 
 
@@ -299,11 +331,13 @@ class Collection:
                 """
     
                 params = (student_id, cca_id, params[-1])
-            
+            else:
+                return False
+                
         c.execute(QUERY, params)
         conn.commit()
         conn.close()
-
+        return True
 
 
 
@@ -342,6 +376,8 @@ class Collection:
             val = (student_data[0], )
             c.execute(VIEW, val)
             studentclass_data = c.fetchone()
+            if studentclass_data == None:
+                return None
             
             theclass = 'Class'
             VIEW = f"""
@@ -705,37 +741,49 @@ class Collection:
 
     
 
-    def edit_record(self, name, record):      
-        details = list(record.values())
-        keys = list(record.keys())
+    def edit_record(self, old_record, new_record):      
+        old_details = list(old_record.values())
+        new_details = list(new_record.values())
         conn = sqlite3.connect(self._dbname)
         c = conn.cursor()
         
-        check = self.view_record(name)
-        
-        if check == 'RECORD DOESNT EXIST GRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA':
-            return check
-        data = self.view_all()
-        id = data.index(check) + 1
         if self._tblname == 'CCA':
+            name = old_details[0]
+            check = self.view_record(name)
+            if check == None:
+                return False
+            data = self.view_all()
+            id = data.index(check) + 1
             query = f"""UPDATE {self._tblname} 
                         SET "id" = ?,
                             "Name" = ?,
                             "Type" = ?
                         WHERE "Name" = ?
                         ;"""
-            val = (id, details[0], details[1], name)
+            val = (id, new_details[0], new_details[1], name)
 
         elif self._tblname == 'Class':
+            name = old_details[0]
+            check = self.view_record(name)
+            if check == None:
+                return False
+            data = self.view_all()
+            id = data.index(check) + 1
             query = f"""UPDATE {self._tblname} 
                         SET "id" = ?,
                             "Name" = ?,
                             "Level" = ?
                         WHERE "Name" = ?
                         ;"""
-            val = (id, details[0], details[1], name)
+            val = (id, new_details[0], new_details[1], name)
             
         elif self._tblname == 'Activity':
+            name = old_details[0]
+            check = self.view_record(name)
+            if check == None:
+                return False
+            data = self.view_all()
+            id = data.index(check) + 1
             query = f"""UPDATE {self._tblname}
                         SET "id" = ?,
                             "Name" = ?,
@@ -744,9 +792,15 @@ class Collection:
                             "End_Date" = ?
                         WHERE "Name" = ?
                         ;"""
-            val = (id, details[0], details[1], details[2], details[3], name)
+            val = (id, new_details[0], new_details[1], new_details[2], new_details[3], name)
 
         elif self._tblname == 'Student':
+            name = old_details[0]
+            check = self.view_record(name)
+            if check == None:
+                return False
+            data = self.view_all()
+            id = data.index(check) + 1
             query = f"""UPDATE {self._tblname}
                         SET "id" = ?,
                             "Name" = ?,
@@ -755,34 +809,56 @@ class Collection:
                             "Graduating_Year" = ?
                         WHERE "Name" = ?
                         ;"""
-            val = (id, details[0], details[1], details[2], details[3], name)
+            val = (id, new_details[0], new_details[1], new_details[2], new_details[3], name)
 
         elif self._tblname == 'Subjects':
+            CHECK = f"""SELECT * FROM {self._tblname}
+                        WHERE "Name"=? AND "Level"=?;"""
+            val = (old_details[0], old_details[1])
+            c.execute(CHECK, val)
+            check = c.fetchone()
+            if check == None:
+                return False
+
+            data = self.view_all()
+            id = data.index(check) + 1
             query = f"""UPDATE {self._tblname} 
                         SET "id" = ?,
                             "Name" = ?,
                             "Level" = ?
-                        WHERE "Name" = ?
+                        WHERE "Name" = ? AND "Level" = ?
                         ;"""
-            val = (id, details[0], details[1], name)
+            val = (id, new_details[0], new_details[1], old_details[0], old_details[1])
 
 
         elif self._tblname == 'student_class':
-            
+            name = old_details[0]
             student = 'Student'
             VIEW = f"""SELECT * FROM {student} 
                         WHERE "Name" = ?;"""
             val = (name, )
             c.execute(VIEW, val)
             student_data = c.fetchone()
+            if student_data == None:
+                return False
+                
+
+            VIEW = f"""SELECT * FROM {self._tblname}
+                    WHERE "student_id"=?;"""
+            val = (student_data[0], )
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return False
 
             theclass = 'Class'
             VIEW = f"""SELECT * FROM {theclass} 
                         WHERE "Name" = ?;"""
-            val = (details[-1], )
+            val = (new_details[-1], )
             c.execute(VIEW, val)
             class_data = c.fetchone()
-            
+            if class_data == None:
+                return False
             query = f"""UPDATE {self._tblname} 
                         SET "student_id" = ?,
                             "class_id" = ?
@@ -793,45 +869,83 @@ class Collection:
 
 
         elif self._tblname == 'cca_activity':
-            
+            name = old_details[0]
             cca = 'CCA'
             VIEW = f"""SELECT * FROM {cca} 
                         WHERE "Name" = ?;"""
             val = (name, )
             c.execute(VIEW, val)
             cca_data = c.fetchone()
+            if cca_data == None:
+                return False
 
             act = 'Activity'
             VIEW = f"""SELECT * FROM {act} 
                         WHERE "Name" = ?;"""
-            val = (details[0], )
+            val = (old_details[-1], )
             c.execute(VIEW, val)
-            act_data = c.fetchone()
-            
+            oldact_data = c.fetchone()
+            if oldact_data == None:
+                return False
+
+            VIEW = f"""SELECT * FROM {act} 
+                        WHERE "Name" = ?;"""
+            val = (new_details[-1], )
+            c.execute(VIEW, val)
+            newact_data = c.fetchone()
+            if newact_data == None:
+                return False
+
+            VIEW = f"""SELECT * FROM {self._tblname} 
+                        WHERE "cca_id" = ? AND "activity_id"=?;"""
+            val = (cca_data[0], oldact_data[0])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return False
             query = f"""UPDATE {self._tblname} 
                         SET "cca_id" = ?,
                             "activity_id" = ?
-                        WHERE "cca_id" = ?
+                        WHERE "cca_id" = ? AND "activity_id"=?
                         ;"""
-            val = (cca_data[0], act_data[0], cca_data[0])
+            val = (cca_data[0], newact_data[0], cca_data[0], oldact_data[0])
 
 
         elif self._tblname == 'student_activity':
-            
+            name = old_details[0]
             student = 'Student'
             VIEW = f"""SELECT * FROM {student} 
                         WHERE "Name" = ?;"""
             val = (name, )
             c.execute(VIEW, val)
             student_data = c.fetchone()
+            if student_data == None:
+                return False
 
             act = 'Activity'
             VIEW = f"""SELECT * FROM {act} 
                         WHERE "Name" = ?;"""
-            val = (details[0], )
+            val = (old_details[-1], )
             c.execute(VIEW, val)
-            act_data = c.fetchone()
+            oldact_data = c.fetchone()
+            if oldact_data == None:
+                return False
             
+            VIEW = f"""SELECT * FROM {act} 
+                        WHERE "Name" = ?;"""
+            val = (new_details[0], )
+            c.execute(VIEW, val)
+            newact_data = c.fetchone()
+            if newact_data == None:
+                return False
+
+            VIEW = f"""SELECT * FROM {self._tblname} 
+                        WHERE "student_id" = ? AND "activity_id"=?;"""
+            val = (student_data[0], oldact_data[0])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return False
             query = f"""UPDATE {self._tblname} 
                         SET "student_id" = ?,
                             "activity_id" = ?,
@@ -839,62 +953,102 @@ class Collection:
                             "Category" = ?,
                             "Award" = ?,
                             "Hours" = ?
-                        WHERE "student_id" = ?
+                        WHERE "student_id" = ? AND "activity_id"=?
                         ;"""
-            val = (student_data[0], act_data[0], details[1], details[2], details[3], details[4], student_data[0])
+            val = (student_data[0], newact_data[0], new_details[1], new_details[2], new_details[3], new_details[4], student_data[0], oldact_data[0])
 
 
         elif self._tblname == 'student_subject':
-            
+            name = old_details[0]
             student = 'Student'
             VIEW = f"""SELECT * FROM {student} 
                         WHERE "Name" = ?;"""
             val = (name, )
             c.execute(VIEW, val)
             student_data = c.fetchone()
+            if student_data == None:
+                return False
+
 
             sub = 'Subjects'
             VIEW = f"""SELECT * FROM {sub} 
                         WHERE "Name" = ? AND "Level" = ?;"""
-            val = (details[0], details[1])
+            val = (old_details[1], old_details[2])
             c.execute(VIEW, val)
-            sub_data = c.fetchone()
-            
+            oldsub_data = c.fetchone()
+            if oldsub_data == None:
+                return False
+
+            VIEW = f"""SELECT * FROM {sub} 
+                        WHERE "Name" = ? AND "Level" = ?;"""
+            val = (new_details[0], new_details[1])
+            c.execute(VIEW, val)
+            newsub_data = c.fetchone()
+            if newsub_data == None:
+                return False
+
+            VIEW = f"""SELECT * FROM {self._tblname} 
+                        WHERE "student_id" = ? AND "subject_id" = ?;"""
+            val = (student_data[0], oldsub_data[0])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return False
             query = f"""UPDATE {self._tblname} 
                         SET "student_id" = ?,
                             "subject_id" = ?
-                        WHERE "student_id" = ?
+                        WHERE "student_id" = ? AND "subject_id" = ?
                         ;"""
-            val = (student_data[0], sub_data[0], student_data[0])
+            val = (student_data[0], newsub_data[0], student_data[0], oldsub_data[0])
 
 
         elif self._tblname == 'student_cca':
-            
+            name = old_details[0]
             student = 'Student'
             VIEW = f"""SELECT * FROM {student} 
                         WHERE "Name" = ?;"""
             val = (name, )
             c.execute(VIEW, val)
             student_data = c.fetchone()
+            if student_data == None:
+                return False
 
             cca = 'CCA'
             VIEW = f"""SELECT * FROM {cca} 
                         WHERE "Name" = ?;"""
-            val = (details[0], )
+            val = (old_details[1], )
             c.execute(VIEW, val)
-            cca_data = c.fetchone()
-            
+            oldcca_data = c.fetchone()
+            if oldcca_data == None:
+                return False
+                
+            VIEW = f"""SELECT * FROM {cca} 
+                        WHERE "Name" = ?;"""
+            val = (new_details[0], )
+            c.execute(VIEW, val)
+            newcca_data = c.fetchone()
+            if newcca_data == None:
+                return False
+
+            VIEW = f"""SELECT * FROM {self._tblname} 
+                        WHERE "student_id" = ? AND "cca_id" = ?;"""
+            val = (student_data[0], oldcca_data[0])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check == None:
+                return False
             query = f"""UPDATE {self._tblname} 
                         SET "student_id" = ?,
                             "cca_id" = ?,
                             "Role" = ?
-                        WHERE "student_id" = ?
+                        WHERE "student_id" = ? AND "cca_id" = ?
                         ;"""
-            val = (student_data[0], cca_data[0], details[1], student_data[0])
+            val = (student_data[0], newcca_data[0], new_details[-1], student_data[0], oldcca_data[0])
             
         c.execute(query, val)
         conn.commit()
         conn.close()
+        return True
 
 
     def delete_record(self, record):
