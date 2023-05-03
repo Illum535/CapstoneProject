@@ -14,7 +14,7 @@
         <br><br><br>
         <form action="{{data['form_meta']['action']}}" method="{{data['form_meta']['method']}}" id="form">
             <div class="container-1">
-                <h1>{{data['check'].replace('_', ' ').upper()}}</h1>
+                <h1>{{data['page_type'].replace('_', ' ').upper()}} {{data['check'].replace('_', ' ').upper()}}</h1>
                 <div class='container-box'>
                     <div id='check-msg' class='highlight-red'></div>
                     

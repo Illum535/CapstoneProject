@@ -152,9 +152,10 @@
             for (i = 0; i < (row_input.length); i++) {
                 check1 = row_input[i].type == 'hidden'
                 check2 = row_input[i].type == 'select-one' && row_input[i].style.display == '';
-                console.log(row_input[i].style.display)
+                console.log(row_input[i])
                 if (check1 || check2) {
                     no_change = false;
+                    row_input[i].type = "text";
                     {% for name, type in data['form_type'].items() %}
                         if (row_input[i].name == "{{name}}") {
                             if ("{{type}}" == 'radio') {

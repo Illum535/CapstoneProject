@@ -428,9 +428,11 @@ def view(type, rqst): # view function for rendering /view pages
                 coll[data[2]].edit_record(data[0], data[1]) # edits the data
                 
                 return redirect(f'/view_{type}?{args[0]}&{args[1]}') # redirects to the same page
-                
+
             data = get_update_data('view', dict(rqst.form)) # gets data for updating single table coll data
             coll[type].edit_record(data[0], data[1]) # edit the data
+            if type == 'student':
+                coll['student_class'].edit_record(data[0], data[1])
             
             return redirect(f'/view_{type}') # redirects to the same page
             
