@@ -56,7 +56,9 @@
                                                 <a class='table-content' href="{{value[1]}}">{{value[0]}}</a>
                                             {% else %}
                                                 <p class='table-content' name="{{id}}">{{value}}</p>
-                                                <input type='hidden' name='old_{{key}}' value="{{value}}">
+                                                {% if 'name' in key or 'class' in key %}
+                                                    <input type='hidden' name='old_{{key}}' value="{{value}}">
+                                                {% endif %}
                                                 {% if data['form_type'][key] != 'radio' %}
                                                     <input class='{{id}}' type='hidden' name='{{key}}' value="{{value}}">
                                                 {% else %}
@@ -107,7 +109,9 @@
                                     <input type='hidden' name='old_{{data["check"]}}_name' value="{{data['main']}}">
                                     {% for key, value in record.items() %}
                                         <td>
-                                            <input type='hidden' name='old_{{key}}' value="{{value}}">
+                                            {% if 'name' in key %}
+                                                <input type='hidden' name='old_{{key}}' value="{{value}}">
+                                            {% endif %}
                                             {% if 'name' not in key and data['no_of_headers'] > 1 %}
                                                 {% if data['form_type'][key] != 'radio' %}
                                                     <input class='{{id}}' type='hidden' name='{{key}}' value="{{value}}">

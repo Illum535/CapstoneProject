@@ -37,7 +37,7 @@
                         {% if data['path'] == 'success' %}
                             <div class="input">
                                 {% if data['form_type'][key] == 'radio' %}
-                                    <span>{{data['checked'].title()}}</span>
+                                    <span>{{data['checked'][key].title()}}</span>
                                 {% else %}
                                     <span>{{value.title()}}</span>
                                 {% endif %}
@@ -46,10 +46,10 @@
                             {% if data['form_type'][key] == 'radio' %}
                                 <div class='radio'>
                                 {% for option in value %}
-                                    {% if data['path'] == 'confirm' and data['checked'] == option %}
-                                        <input class='radio' id="{{option}}" type="{{data['form_type'][key]}}" name="{{key}}" value="{{option}}" checked>
+                                    {% if data['path'] == 'confirm' and data['checked'][key] == option %}
+                                        <input class='{{key}}' id="{{option}}" type="{{data['form_type'][key]}}" name="{{key}}" value="{{option}}" checked>
                                     {% else %}
-                                        <input class='radio' id="{{option}}" type="{{data['form_type'][key]}}" name="{{key}}" value="{{option}}" required>
+                                        <input class='{{key}}' id="{{option}}" type="{{data['form_type'][key]}}" name="{{key}}" value="{{option}}" required>
                                     {% endif %}
                                     <label for="{{option}}">{{option.title()}}</label>
                                 {% endfor %}
