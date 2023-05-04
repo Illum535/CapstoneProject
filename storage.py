@@ -558,7 +558,26 @@ class Collection:
             conn.close()
             return (student_data[1], sub_data[1], sub_data[-1])
 
-
+        elif self._tblname == 'Subjects':
+            name = details[0]
+            VIEW = f"""
+                SELECT * FROM {self._tblname} 
+                WHERE "Name"=? AND "Level"=?;
+            """
+            val = (name, details[1])
+            c.execute(VIEW, val)
+            result = c.fetchone()
+            if result == None:
+                return result
+    
+            
+            conn.commit()
+            conn.close()
+            result = list(result)
+            result.pop(0)
+            result = tuple(result)
+            return result
+            
         
         name = details[0]
         VIEW = f"""
