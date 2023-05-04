@@ -130,7 +130,9 @@ for type, headers in add_form_type.items(): # To create a dictionary with all th
         count = 2 
         
     else:
-        update_form_type[type] = {'name': 'text'} 
+        update_form_type[type] = {'name': 'text'}
+        if type == 'subject':
+            update_form_type[type]['level'] = 'radio'
         count = 0
     
     for header, value in headers.items():
@@ -150,8 +152,8 @@ def add_data(update_or_add, path, type, form_data = None): # Function for adding
     }
     
     fail_msg = { # Corresponding message when failed to add/update data
-        'add': 'already in database.',
-        'update': 'not in database.'
+        'add': 'failed to add to database.',
+        'update': 'failed to update to database.'
     }
     
     if path == 'fail':
@@ -173,13 +175,14 @@ def add_data(update_or_add, path, type, form_data = None): # Function for adding
         data['form_type'] = update_form_type[type]
     
     if form_data: # If form is filled in
+        data['checked'] = {}
         data['form_data'] = form_data
         
         for key in form_data.keys():
             new_key = f"{type}{key.replace('new_', '')}"
             
             if new_key in list(radio_options.keys()): # checking if any data entered is a radio input
-                data['checked'] = form_data[key]
+                data['checked'][key] = form_data[key]
                 data['form_data'][key] = radio_options[new_key] # making sure the default checked radio option is the given input
                     
 
@@ -315,29 +318,42 @@ def get_update_data(view_or_update, record, is_multi = False, args = None, type 
 
             if 'students' in args: # special case for if student table is the foreign table
                 name = values[1]
-                record = [values[0]] + values[2:]
+                keys = [keys[0]] + keys[2:]
                 coll_index = f'{foreign_table_names[args[1]]}_{type}' # changing coll key for the correct coll to be used
                 
             else:
                 name = values[0]
-                record = values[1:]
+                keys = keys[1:]
                 coll_index = f'{type}_{foreign_table_names[args[1]]}' # changing coll key for the correct coll to be used
                 
             new_record = {}
             
-            for index, value in enumerate(record):
-                if index % 2 == 0:
-                    new_record[keys[1:][index]] = value # retrieving new inputted data and excluding the old data
+            old_record = {
+                'student_name': name
+            }
+            
+            for key in keys:
+                if 'old' not in key:
+                    new_record[key] = record[key] # retrieving new inputted data and excluding the old data
+                else:
+                    if 'name' in key:
+                        new_record[key] = record[key]
+                        
+                    old_record[key] = record[key]
 
-            return (name, new_record, coll_index)
+            return (old_record, new_record, coll_index)
             
         # if not multi table coll
-        name = record['old_name'] # find name of main record
         new_record = {}
+        old_record = {}
         
         for key in record.keys():
             if 'old' not in key:
                 new_record[key] = record[key] # retrieving new data and removing old data
+            else:
+                old_record[key.replace('old_', '')] = record[key]
+
+        return (old_record, new_record)
 
     else: # else if updated through /update
         new_record = {}
@@ -352,6 +368,7 @@ def get_update_data(view_or_update, record, is_multi = False, args = None, type 
         for key in record.keys(): # for updating record keys to not have "new_"
             if 'new' in key:
                 new_record[key.replace('new_', '')] = record[key]
+                
     
     return (name, new_record)
 
@@ -404,13 +421,24 @@ def add_update(update_or_add, type, rqst): # add/update function for rendering a
             else:
                 if '_' in type: # if multi table
                     data = get_update_data('update', dict(rqst.form), True) # get data for multi table coll
+                    old_record = {
+                        'name1': list(dict(rqst.form).values())[0],
+                        'name2': list(dict(rqst.form).values())[1]
+                    }
+                    
+                    
                 else:
                     data = get_update_data('update', dict(rqst.form)) # get data for single table coll
+                    old_record = {'name': data[0]}
+                    if type == 'subject':
+                        old_record['level'] = rqst.form['level']
 
-                result = coll[type].edit_record(data[0], data[1]) # edit the data
-                
-            if result: # if failed to add/update
-                
+                if old_record:
+                    result = coll[type].edit_record(old_record, data[1]) # edit the data
+                else:
+                    result = False
+
+            if not result: # if failed to add/update
                 return render_template('add_update.html', data = add_data(update_or_add, 'fail', type = type, form_data = dict(rqst.form))) # fail page
         
         return render_template('add_update.html', data = add_data(update_or_add, list(request.args)[0], type = type, form_data = dict(rqst.form))) # 'confirm' or 'success' page
@@ -425,12 +453,17 @@ def view(type, rqst): # view function for rendering /view pages
             
             if len(rqst.args) > 1: # if multi table coll update
                 data = get_update_data('view', dict(rqst.form), True, args, type) # gets data for updating multi table coll data
+                print(data)
                 coll[data[2]].edit_record(data[0], data[1]) # edits the data
                 
                 return redirect(f'/view_{type}?{args[0]}&{args[1]}') # redirects to the same page
-                
+
             data = get_update_data('view', dict(rqst.form)) # gets data for updating single table coll data
             coll[type].edit_record(data[0], data[1]) # edit the data
+            if type == 'student':
+                old_record = {'student': data[0]['name'], 'class': data[0]['class']}
+                new_record = {'student': data[1]['name'], 'class': data[1]['class']}
+                coll['student_class'].edit_record(old_record, new_record)
             
             return redirect(f'/view_{type}') # redirects to the same page
             
