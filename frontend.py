@@ -218,7 +218,7 @@ foreign_table_names = { # To convert the html request arguments into the proper 
         'subjects': 'subject',
     }
 
-def view_data(type, main = '', foreign_table = ''): # Function for the /view webpages
+def view_data(type, main = '', foreign_table = '', level = ''): # Function for the /view webpages
     data = {}
     
     data['check'] = type # adding form type as a check in the html
@@ -242,14 +242,20 @@ def view_data(type, main = '', foreign_table = ''): # Function for the /view web
         data['form_type'] = add_form_type[form_index] # adding form input types
         records = coll[form_index].view_all() # getting all the data from the multi coll
         data['records'] = []
-        data['data'] = dict(zip(add_form_type[type].keys(), coll[type].view_record(main))) # getting the data on the main record focused on
+        # getting the data on the main record focused on
+        if level:
+            data['data'] = dict(zip(add_form_type[type].keys(), coll[form_index].view_record({'main': main, 'foreign': foreign_table, 'level': level})))
+        else:
+            data['data'] = dict(zip(add_form_type[type].keys(), coll[type].view_record({'main': main, 'foreign': foreign_table}))) 
+            
         header.pop(index)
         
         for record in records:
             if main in record:
-                record = list(record)
-                record.pop(index)
-                data['records'].append(dict(zip(header, record))) # adding each record from the multi table coll corresponding to the main record
+                if not level or level in record:
+                    record = list(record)
+                    record.pop(index)
+                    data['records'].append(dict(zip(header, record))) # adding each record from the multi table coll corresponding to the main record
 
         data['records'] = dict(enumerate(data['records'])) # numbering the records
         data['no_of_headers'] = len(header)
@@ -287,7 +293,11 @@ def view_data(type, main = '', foreign_table = ''): # Function for the /view web
             for key, value in ext_headers.items():
                 if key == type:
                     for extra in value:
-                        record[extra] = [f'View {extra}', f'/view_{type}?{main}&{extra}'] # adding extra headers for the main and foreign table functionality
+                        extra1 = ''
+                        if type == 'subject':
+                            extra1 = f'&{record["level"]}'
+                            
+                        record[extra] = [f'View {extra}', f'/view_{type}?{main}&{extra}{extra1}'] # adding extra headers for the main and foreign table functionality
     
                     break
             
@@ -478,7 +488,10 @@ def view(type, rqst): # view function for rendering /view pages
             coll[type].delete_record(data[0]) # deletes data
             
             return redirect(f'/view_{type}') # redirects to the same page
-            
-        return render_template('view.html', data = view_data(type, args[0], args[1])) # renders data when focused on multi table coll
+
+        if type == 'subject': # renders data when focused on multi table coll
+            return render_template('view.html', data = view_data(type, args[0], args[1], args[2]))
+        else:
+            return render_template('view.html', data = view_data(type, args[0], args[1])) 
         
     return render_template('view.html', data = view_data(type)) # renders main records
