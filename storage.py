@@ -850,13 +850,22 @@ class Collection:
             if check == None:
                 return False
 
-            query = f"""UPDATE {self._tblname} 
-                        SET "id" = ?,
-                            "Name" = ?,
-                            "Level" = ?
-                        WHERE "Name" = ? AND "Level" = ?
-                        ;"""
-            val = (check[0], new_details[0], new_details[1], old_details[0], old_details[1])
+            CHECK = f"""SELECT * FROM {self._tblname}
+                        WHERE "Name"=? AND "Level"=?;"""
+            val = (new_details[0], new_details[1])
+            c.execute(CHECK, val)
+            check = c.fetchone()
+            if check == None:
+
+                query = f"""UPDATE {self._tblname} 
+                            SET "id" = ?,
+                                "Name" = ?,
+                                "Level" = ?
+                            WHERE "Name" = ? AND "Level" = ?
+                            ;"""
+                val = (check[0], new_details[0], new_details[1], old_details[0], old_details[1])
+            else:
+                return False
 
 
         elif self._tblname == 'student_class':
@@ -931,6 +940,14 @@ class Collection:
             check = c.fetchone()
             if check == None:
                 return False
+
+            VIEW = f"""SELECT * FROM {self._tblname} 
+                        WHERE "cca_id" = ? AND "activity_id"=?;"""
+            val = (cca_data[0], newact_data[0])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check != None:
+                return False
             query = f"""UPDATE {self._tblname} 
                         SET "cca_id" = ?,
                             "activity_id" = ?
@@ -973,6 +990,14 @@ class Collection:
             c.execute(VIEW, val)
             check = c.fetchone()
             if check == None:
+                return False
+
+            VIEW = f"""SELECT * FROM {self._tblname} 
+                        WHERE "student_id" = ? AND "activity_id"=?;"""
+            val = (student_data[0], newact_data[0])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check != None:
                 return False
             query = f"""UPDATE {self._tblname} 
                         SET "student_id" = ?,
@@ -1022,6 +1047,13 @@ class Collection:
             check = c.fetchone()
             if check == None:
                 return False
+            VIEW = f"""SELECT * FROM {self._tblname} 
+                        WHERE "student_id" = ? AND "subject_id" = ?;"""
+            val = (student_data[0], newsub_data[0])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check != None:
+                return False
             query = f"""UPDATE {self._tblname} 
                         SET "student_id" = ?,
                             "subject_id" = ?
@@ -1064,6 +1096,14 @@ class Collection:
             c.execute(VIEW, val)
             check = c.fetchone()
             if check == None:
+                return False
+
+            VIEW = f"""SELECT * FROM {self._tblname} 
+                        WHERE "student_id" = ? AND "cca_id" = ?;"""
+            val = (student_data[0], newcca_data[0])
+            c.execute(VIEW, val)
+            check = c.fetchone()
+            if check != None:
                 return False
             query = f"""UPDATE {self._tblname} 
                         SET "student_id" = ?,
