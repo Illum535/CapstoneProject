@@ -275,8 +275,7 @@ def view_data(type, main = '', foreign_table = ''): # Function for the /view web
             record = dict(zip(header, record)) # convert record into a dict
             
             if type == 'student': # if viewing students
-                class_data = coll['student_class'].view_record(record['name'])
-                
+                class_data = coll['student_class'].view_record({'student': record['name']})
                 if class_data:
                     record['class'] = class_data[1] # add class to record
                     
