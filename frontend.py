@@ -462,14 +462,13 @@ def view(type, rqst): # view function for rendering /view pages
             
             if len(rqst.args) > 1: # if multi table coll update
                 data = get_update_data('view', dict(rqst.form), True, args, type) # gets data for updating multi table coll data
-                print(data)
                 coll[data[2]].edit_record(data[0], data[1]) # edits the data
                 
                 return redirect(f'/view_{type}?{args[0]}&{args[1]}') # redirects to the same page
 
             data = get_update_data('view', dict(rqst.form)) # gets data for updating single table coll data
-            print(data)
             coll[type].edit_record(data[0], data[1]) # edit the data
+            
             if type == 'student':
                 old_record = {'student': data[0]['name'], 'class': data[0]['class']}
                 new_record = {'student': data[1]['name'], 'class': data[1]['class']}
