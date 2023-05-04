@@ -355,7 +355,7 @@ class Collection:
     def view_record(self, record):
         conn = sqlite3.connect(self._dbname)
         c = conn.cursor()
-        details = list(record.details())
+        details = list(record.values())
         if self._tblname == 'student_class':
             name = details[0]
             student = 'Student'
