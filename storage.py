@@ -560,7 +560,7 @@ class Collection:
 
 
         
-        
+        name = details[0]
         VIEW = f"""
             SELECT * FROM {self._tblname} 
             WHERE "Name"=?;
