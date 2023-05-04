@@ -854,8 +854,8 @@ class Collection:
                         WHERE "Name"=? AND "Level"=?;"""
             val = (new_details[0], new_details[1])
             c.execute(CHECK, val)
-            check = c.fetchone()
-            if check == None:
+            check2 = c.fetchone()
+            if check2 == None:
 
                 query = f"""UPDATE {self._tblname} 
                             SET "id" = ?,
