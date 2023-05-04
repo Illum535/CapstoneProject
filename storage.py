@@ -1155,7 +1155,8 @@ class Collection:
             
             conn.commit()
             conn.close()
-
+            self.reorder()
+            
         elif self._tblname == 'CCA':
             VIEW = f"""
                 SELECT * FROM {self._tblname} 
