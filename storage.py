@@ -352,12 +352,12 @@ class Collection:
 
 
     
-    def view_record(self, name):
+    def view_record(self, record):
         conn = sqlite3.connect(self._dbname)
         c = conn.cursor()
-
+        details = list(record.details())
         if self._tblname == 'student_class':
-            
+            name = details[0]
             student = 'Student'
             VIEW = f"""
             SELECT * FROM {student} 
@@ -394,7 +394,7 @@ class Collection:
 
 
         elif self._tblname == 'cca_activity':
-            
+            name = details[0]
             cca = 'CCA'
             VIEW = f"""
             SELECT * FROM {cca} 
@@ -406,25 +406,28 @@ class Collection:
             if cca_data == None:
                 return None
 
+            act = 'Activity'
+            VIEW = f"""
+            SELECT * FROM {act} 
+            WHERE "Name"=?;
+            """
+            val = (details[1], )
+            c.execute(VIEW, val)
+            act_data = c.fetchone()
+            if act_data == None:
+                return None
+
             VIEW = f"""
             SELECT * FROM {self._tblname} 
-            WHERE "cca_id"=?;
+            WHERE "cca_id"=? AND "activity_id"=?;
             """
-            val = (cca_data[0], )
+            val = (cca_data[0], act_data[0])
             c.execute(VIEW, val)
             ccaact_data = c.fetchone()
 
             if ccaact_data == None:
                 return None
             
-            act = 'Activity'
-            VIEW = f"""
-            SELECT * FROM {act} 
-            WHERE "id"=?;
-            """
-            val = (ccaact_data[1], )
-            c.execute(VIEW, val)
-            act_data = c.fetchone()
 
             conn.commit()
             conn.close()
@@ -433,7 +436,7 @@ class Collection:
 
 
         elif self._tblname == 'student_activity':
-            
+            name = details[0]
             student = 'Student'
             VIEW = f"""
             SELECT * FROM {student} 
@@ -445,25 +448,28 @@ class Collection:
             if student_data == None:
                 return None
 
+            act = 'Activity'
+            VIEW = f"""
+            SELECT * FROM {act} 
+            WHERE "Name"=?;
+            """
+            val = (details[1], )
+            c.execute(VIEW, val)
+            act_data = c.fetchone()
+            if act_data == None:
+                return None
+            
             VIEW = f"""
             SELECT * FROM {self._tblname} 
-            WHERE "student_id"=?;
+            WHERE "student_id"=? AND "activity_id"=?;
             """
-            val = (student_data[0], )
+            val = (student_data[0], act_data[0])
             c.execute(VIEW, val)
             studentact_data = c.fetchone()
             if studentact_data == None:
                 return None
 
             
-            act = 'Activity'
-            VIEW = f"""
-            SELECT * FROM {act} 
-            WHERE "id"=?;
-            """
-            val = (studentact_data[1], )
-            c.execute(VIEW, val)
-            act_data = c.fetchone()
 
             conn.commit()
             conn.close()
@@ -471,7 +477,7 @@ class Collection:
 
         
         elif self._tblname == 'student_cca':
-            
+            name = details[0]
             student = 'Student'
             VIEW = f"""
             SELECT * FROM {student} 
@@ -484,25 +490,28 @@ class Collection:
             if student_data == None:
                 return None
 
+            cca = 'CCA'
+            VIEW = f"""
+            SELECT * FROM {cca} 
+            WHERE "Name"=?;
+            """
+            val = (details[1], )
+            c.execute(VIEW, val)
+            cca_data = c.fetchone()
+            if cca_data == None:
+                return None
+                
             VIEW = f"""
             SELECT * FROM {self._tblname} 
-            WHERE "student_id"=?;
+            WHERE "student_id"=? AND "cca_id"=?;
             """
-            val = (student_data[0], )
+            val = (student_data[0], cca_data[0])
             c.execute(VIEW, val)
             studentcca_data = c.fetchone()
 
             if studentcca_data == None:
                 return None
             
-            cca = 'CCA'
-            VIEW = f"""
-            SELECT * FROM {cca} 
-            WHERE "id"=?;
-            """
-            val = (studentcca_data[1], )
-            c.execute(VIEW, val)
-            cca_data = c.fetchone()
 
             conn.commit()
             conn.close()
@@ -510,7 +519,7 @@ class Collection:
 
 
         elif self._tblname == 'student_subject':
-            
+            name = details[0]
             student = 'Student'
             VIEW = f"""
             SELECT * FROM {student} 
@@ -523,25 +532,27 @@ class Collection:
             if student_data == None:
                 return None
 
+            sub = 'Subjects'
+            VIEW = f"""
+            SELECT * FROM {sub} 
+            WHERE "Name"=? AND "Level"=?;
+            """
+            val = (details[1], details[-1])
+            c.execute(VIEW, val)
+            sub_data = c.fetchone()
+            if sub_data == None:
+                return None
+
             VIEW = f"""
             SELECT * FROM {self._tblname} 
-            WHERE "student_id"=?;
+            WHERE "student_id"=? AND "subject_id"=?;
             """
-            val = (student_data[0], )
+            val = (student_data[0], sub_data[0])
             c.execute(VIEW, val)
             studentsub_data = c.fetchone()
 
             if studentsub_data == None:
                 return None
-            
-            sub = 'Subjects'
-            VIEW = f"""
-            SELECT * FROM {sub} 
-            WHERE "id"=?;
-            """
-            val = (studentsub_data[1], )
-            c.execute(VIEW, val)
-            sub_data = c.fetchone()
 
             conn.commit()
             conn.close()
