@@ -820,15 +820,13 @@ class Collection:
             if check == None:
                 return False
 
-            data = self.view_all()
-            id = data.index(check) + 1
             query = f"""UPDATE {self._tblname} 
                         SET "id" = ?,
                             "Name" = ?,
                             "Level" = ?
                         WHERE "Name" = ? AND "Level" = ?
                         ;"""
-            val = (id, new_details[0], new_details[1], old_details[0], old_details[1])
+            val = (check[0], new_details[0], new_details[1], old_details[0], old_details[1])
 
 
         elif self._tblname == 'student_class':
