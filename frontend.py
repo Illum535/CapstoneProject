@@ -105,8 +105,8 @@ add_form_type = { # Dictionary for all the different input types for the add for
     'student_activity': {
         'student_name': 'text',
         'activity_name': 'text',
-        'category': 'radio',
         'role': 'text',
+        'category': 'radio',
         'award': 'text',
         'hours': 'number',
     },
