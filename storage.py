@@ -934,7 +934,7 @@ class Collection:
             act = 'Activity'
             VIEW = f"""SELECT * FROM {act} 
                         WHERE "Name" = ?;"""
-            val = (old_details[-1], )
+            val = (old_details[1], )
             c.execute(VIEW, val)
             oldact_data = c.fetchone()
             if oldact_data == None:
