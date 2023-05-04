@@ -244,9 +244,9 @@ def view_data(type, main = '', foreign_table = '', level = ''): # Function for t
         data['records'] = []
         # getting the data on the main record focused on
         if level:
-            data['data'] = dict(zip(add_form_type[type].keys(), coll[form_index].view_record({'main': main, 'foreign': foreign_table, 'level': level})))
+            data['data'] = dict(zip(add_form_type[type].keys(), coll[type].view_record({'main': main, 'level': level})))
         else:
-            data['data'] = dict(zip(add_form_type[type].keys(), coll[type].view_record({'main': main, 'foreign': foreign_table}))) 
+            data['data'] = dict(zip(add_form_type[type].keys(), coll[type].view_record({'main': main}))) 
             
         header.pop(index)
         
