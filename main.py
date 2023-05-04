@@ -197,10 +197,5 @@ def update_act():
     return add_update('update', 'student_activity', request)
 
 
-# if __name__ == "__main__":
-#    app.run('0.0.0.0')
-from storage import SubjectCollection
-c = SubjectCollection()
-c.add_record({'a': 'SEX', 'b': 'H1'})
-b = c.view_all()
-print(b)
+if __name__ == "__main__":
+   app.run('0.0.0.0')
