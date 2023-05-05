@@ -780,7 +780,7 @@ class Collection:
         
         if self._tblname == 'CCA':
             name = old_details[0]
-            check = self.view_record(record)
+            check = self.view_record(old_record)
             if check == None:
                 return False
             data = self.view_all()
@@ -795,7 +795,7 @@ class Collection:
 
         elif self._tblname == 'Class':
             name = old_details[0]
-            check = self.view_record(record)
+            check = self.view_record(old_record)
             if check == None:
                 return False
             data = self.view_all()
@@ -810,7 +810,7 @@ class Collection:
             
         elif self._tblname == 'Activity':
             name = old_details[0]
-            check = self.view_record(record)
+            check = self.view_record(old_record)
             if check == None:
                 return False
             data = self.view_all()
@@ -827,7 +827,7 @@ class Collection:
 
         elif self._tblname == 'Student':
             name = old_details[0]
-            check = self.view_record(record)
+            check = self.view_record(old_record)
             if check == None:
                 return False
             data = self.view_all()
