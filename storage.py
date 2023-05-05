@@ -610,6 +610,7 @@ class Collection:
         """
         c.execute(VIEW)
         result = c.fetchall()
+        print(result)
 
         if self._tblname == 'student_class':
             
@@ -1166,10 +1167,9 @@ class Collection:
             val = (subject_data[0], )
             c.execute(query, val)
 
-            self.reorder()
             conn.commit()
             conn.close()
-            
+            self.reorder()
             
         elif self._tblname == 'CCA':
             VIEW = f"""
