@@ -55,7 +55,7 @@ def help():
     '''
     Returns the help page at path '/help'
     '''
-    return render_template('help.html')
+    return render_template('help.html', entities = add_form_type)
 
 
 @app.route("/add_student", methods=['POST', 'GET'])
