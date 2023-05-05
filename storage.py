@@ -1578,7 +1578,7 @@ class Collection:
                 for y in x:
                     if x.index(y) != 0:
                         temp[y] = y
-                print(temp)
+
                 self.edit_record(temp, temp)
         conn.commit()
         conn.close()
