@@ -3,6 +3,7 @@
     <head>
         <link rel='stylesheet' src='static/css/style.css'>
         <title>Help Page</title>
+        <link href="/static/images/nyjc-logo.png" rel='icon'>
     </head>
 
     <body>
@@ -10,7 +11,21 @@
         <div class='container'>
             <h1>Help</h1>
             <div class='container-box'>
-                <h3>Add pages</h3>
+                <h2>Entity Input Types</h2>
+                {% for entity, fields in entities.items() %}
+                    <h4>{{entity.replace('_', ' ').title()}}</h4>
+                    <ul>
+                        {% for field, type in fields.items() %}
+                            {% if type == 'radio' %}
+                                <li>{{field.replace('_', ' ').title()}}: Text</li>
+                            {% else %}
+                                <li>{{field.replace('_', ' ').title()}}: {{type.replace('_', ' ').title()}}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+                <br>
+                <h2>Add pages</h2>
                 <ul>
                     <li>Use the add pages to add data to the database. When creating a new student you must add them to the class/cca/activity before being able to use the update/edit functions in the view and update pages</li>
                     <li>You would be unable to add records with the same name or in the case for subjects no same record with the same name and level.</li>
@@ -18,7 +33,7 @@
                     <li>You cannot add data containing "#", "&" and "="</li>
                 </ul>
                 <br>
-                <h3>View pages</h3>
+                <h2>View pages</h2>
                 <ul>
                     <li>The search bar searches through the list of records and formats the table to show only the records with text in the search input</li>
                     <li>Use the drop down box to change which field to search by</li>
@@ -29,12 +44,15 @@
                     <li>You cannot edit data containing "#", "&" and "="</li>
                 </ul>
                 <br>
-                <h3>Update pages</h3>
+                <h2>Update pages</h2>
                 <ul>
                     <li>Records to be updated must exist</li>
                     <li>You cannot update records to have the same name as other records.</li>
                     <li>Only the data submitted on the confirm page is used.</li>
                     <li>You cannot edit data containing "#", "&" and "="</li>
+                    <li>Updating student CCA membership lets you update the role of the student in the specified CCA he is in.</li>
+                    <li>Updating student activity membership lets you update the role, category, award and hours of the student in the specified activity he is in.</li>
+                    <li>Use add pages to add students to CCAs and activities.</li>
                 </ul>
             </div>
         </div>
