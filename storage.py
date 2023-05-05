@@ -610,7 +610,6 @@ class Collection:
         """
         c.execute(VIEW)
         result = c.fetchall()
-        print(result)
 
         if self._tblname == 'student_class':
             

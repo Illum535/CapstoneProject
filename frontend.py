@@ -276,7 +276,8 @@ def view_data(type, main = '', foreign_table = '', level = ''): # Function for t
             header += ['class']
             
         records = coll[type].view_all() # getting data from coll
-    
+        value = ''
+        
         for record in records:
             record = dict(zip(header, record)) # convert record into a dict
             
