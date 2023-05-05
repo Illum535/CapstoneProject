@@ -38,6 +38,12 @@ def index():
     '''
     return render_template("index.html")
 
+@app.route('/help')
+def help():
+    '''
+    Returns the help page at path '/help'
+    '''
+    return render_template('help.html')
 
 @app.route("/add_student", methods = ['POST', 'GET'])
 def add_student():

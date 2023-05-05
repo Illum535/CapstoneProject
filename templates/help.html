@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <link rel='stylesheet' src='static/css/style.css'>
+        <title>Help Page</title>
+    </head>
+
+    <body>
+        {% include 'header.html' %}
+        <div class='container'>
+            <h1>Help</h1>
+            <div class='container-box'>
+                <h3>Add pages</h3>
+                <ul>
+                    <li>Use the add pages to add data to the database. When creating a new student you must add them to the class/cca/activity before being able to use the update/edit functions in the view and update pages</li>
+                    <li>You would be unable to add records with the same name or in the case for subjects no same record with the same name and level.</li>
+                    <li>You can change the data in the confirm page and the page will only add the data from the confirm page</li>
+                </ul>
+                <br>
+                <h3>View pages</h3>
+                <ul>
+                    <li>The search bar searches through the list of records and formats the table to show only the records with text in the search input</li>
+                    <li>Use the drop down box to change which field to search by</li>
+                    <li>Click on the headers to sort the table by the field in ascending order</li>
+                    <li>Hyperlinks in the students/ccas/activities/subjects headers will show another page with more detailed information on these fields</li>
+                    <li>Use the edit button to edit the records, the edit functions the same as the update page</li>
+                    <li>Use the delete button to remove records from the database</li>
+                </ul>
+                <br>
+                <h3>Update pages</h3>
+                <ul>
+                    <li>Records to be updated must exist</li>
+                    <li>You cannot update records to have the same name as other records.</li>
+                    <li>Only the data submitted on the confirm page is used.</li>
+                </ul>
+            </div>
+        </div>
+        {% include 'footer.html' %}
+    </body>
+</html>

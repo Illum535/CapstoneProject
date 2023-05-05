@@ -94,6 +94,10 @@ a {
     
 }
 
+.container h3 {
+    color: red;
+}
+
 .container-1 h1{
     color: white;
     font-weight: 200;
@@ -378,3 +382,4 @@ td select {
     text-align: left;
     font-weight: 200;
 }
+
