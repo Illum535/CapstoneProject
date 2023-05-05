@@ -382,3 +382,7 @@ td select {
     font-weight: 200;
 }
 
+.back {
+    margin-top: 5px;
+    float: right;
+}

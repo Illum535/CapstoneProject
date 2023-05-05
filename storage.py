@@ -612,7 +612,6 @@ class Collection:
         """
         c.execute(VIEW)
         result = c.fetchall()
-        print(result)
         if result == []:
             return False
 
@@ -1323,7 +1322,6 @@ class Collection:
                 """
             val = (name, )
             c.execute(DEL, val)
-            print(class_data)
             sc = 'student_class'
             query = f"""
             DELETE FROM {sc}
@@ -1581,29 +1579,23 @@ class Collection:
             for i, x in enumerate(result):
                 original_id = x[0]
                 if x[0] != (i+1):
-                    temp = {}
-                    for y in x:
-                        if x.index(y) != 0:
-                            temp[y] = y
+                    new_id = original_id - 1
+                
+                    query = f"""UPDATE {tblname} 
+                                SET "id" = ?
+                                WHERE "id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
+                
     
-                    self.edit_record(temp, temp)
-                VIEW = f"""
-                        SELECT * FROM {tblname}
-                        WHERE "Name" = ?;
-                        """
-                tempdata = list(temp.values())
-                val = (tempdata[0], )
-                c.execute(VIEW, val)
-                class_data = c.fetchone()
-                new_id = class_data[0]
-    
-                sc = 'student_class'
-                query = f"""UPDATE {sc} 
-                            SET "class_id" = ?
-                            WHERE "class_id" = ?
-                            ;"""
-                val = (new_id, original_id)
-                c.execute(query, val)
+                    sc = 'student_class'
+                    query = f"""UPDATE {sc} 
+                                SET "class_id" = ?
+                                WHERE "class_id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
             conn.commit()
             conn.close()
 
@@ -1611,37 +1603,30 @@ class Collection:
             for i, x in enumerate(result):
                 original_id = x[0]
                 if x[0] != (i+1):
-                    temp = {}
-                    for y in x:
-                        if x.index(y) != 0:
-                            temp[y] = y
-    
-                    self.edit_record(temp, temp)
-                VIEW = f"""
-                        SELECT * FROM {tblname}
-                        WHERE "Name" = ?;
-                        """
-                tempdata = list(temp.values())
-                val = (tempdata[0], )
-                c.execute(VIEW, val)
-                cca_data = c.fetchone()
-                new_id = cca_data[0]
-    
-                sc = 'student_cca'
-                query = f"""UPDATE {sc} 
-                            SET "cca_id" = ?
-                            WHERE "cca_id" = ?
-                            ;"""
-                val = (new_id, original_id)
-                c.execute(query, val)
+                    new_id = original_id - 1
                 
-                ca = 'cca_activity'
-                query = f"""UPDATE {ca} 
-                            SET "cca_id" = ?
-                            WHERE "cca_id" = ?
-                            ;"""
-                val = (new_id, original_id)
-                c.execute(query, val)
+                    query = f"""UPDATE {tblname} 
+                                SET "id" = ?
+                                WHERE "id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
+    
+                    sc = 'student_cca'
+                    query = f"""UPDATE {sc} 
+                                SET "cca_id" = ?
+                                WHERE "cca_id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
+                    
+                    ca = 'cca_activity'
+                    query = f"""UPDATE {ca} 
+                                SET "cca_id" = ?
+                                WHERE "cca_id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
             conn.commit()
             conn.close()
 
@@ -1649,37 +1634,30 @@ class Collection:
             for i, x in enumerate(result):
                 original_id = x[0]
                 if x[0] != (i+1):
-                    temp = {}
-                    for y in x:
-                        if x.index(y) != 0:
-                            temp[y] = y
-    
-                    self.edit_record(temp, temp)
-                VIEW = f"""
-                        SELECT * FROM {tblname}
-                        WHERE "Name" = ?;
-                        """
-                tempdata = list(temp.values())
-                val = (tempdata[0], )
-                c.execute(VIEW, val)
-                act_data = c.fetchone()
-                new_id = act_data[0]
-    
-                sa = 'student_activity'
-                query = f"""UPDATE {sa} 
-                            SET "activity_id" = ?
-                            WHERE "activity_id" = ?
-                            ;"""
-                val = (new_id, original_id)
-                c.execute(query, val)
+                    new_id = original_id - 1
                 
-                ca = 'cca_activity'
-                query = f"""UPDATE {ca} 
-                            SET "activity_id" = ?
-                            WHERE "activity_id" = ?
-                            ;"""
-                val = (new_id, original_id)
-                c.execute(query, val)
+                    query = f"""UPDATE {tblname} 
+                                SET "id" = ?
+                                WHERE "id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
+    
+                    sa = 'student_activity'
+                    query = f"""UPDATE {sa} 
+                                SET "activity_id" = ?
+                                WHERE "activity_id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
+                    
+                    ca = 'cca_activity'
+                    query = f"""UPDATE {ca} 
+                                SET "activity_id" = ?
+                                WHERE "activity_id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
             conn.commit()
             conn.close()
 
@@ -1687,29 +1665,22 @@ class Collection:
             for i, x in enumerate(result):
                 original_id = x[0]
                 if x[0] != (i+1):
-                    temp = {}
-                    for y in x:
-                        if x.index(y) != 0:
-                            temp[y] = y
+                    new_id = original_id - 1
+                
+                    query = f"""UPDATE {tblname} 
+                                SET "id" = ?
+                                WHERE "id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
     
-                    self.edit_record(temp, temp)
-                VIEW = f"""
-                        SELECT * FROM {tblname}
-                        WHERE "Name" = ? AND "Level" = ?;
-                        """
-                tempdata = list(temp.values())
-                val = (tempdata[0], tempdata[1])
-                c.execute(VIEW, val)
-                sub_data = c.fetchone()
-                new_id = sub_data[0]
-    
-                ss = 'student_subject'
-                query = f"""UPDATE {ss} 
-                            SET "subject_id" = ?
-                            WHERE "subject_id" = ?
-                            ;"""
-                val = (new_id, original_id)
-                c.execute(query, val)
+                    ss = 'student_subject'
+                    query = f"""UPDATE {ss} 
+                                SET "subject_id" = ?
+                                WHERE "subject_id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
                 
             conn.commit()
             conn.close()
@@ -1718,51 +1689,46 @@ class Collection:
             for i, x in enumerate(result):
                 original_id = x[0]
                 if x[0] != (i+1):
-                    temp = {}
-                    for y in x:
-                        if x.index(y) != 0:
-                            temp[y] = y
-    
-                    self.edit_record(temp, temp)
-                VIEW = f"""
-                        SELECT * FROM {tblname}
-                        WHERE "Name" = ?;
-                        """
-                tempdata = list(temp.values())
-                val = (tempdata[0], )
-                c.execute(VIEW, val)
-                student_data = c.fetchone()
-                new_id = student_data[0]
-    
-                sc = 'student_cca'
-                query = f"""UPDATE {sc} 
-                            SET "student_id" = ?
-                            WHERE "student_id" = ?
-                            ;"""
-                val = (new_id, original_id)
-                c.execute(query, val)
+                    new_id = original_id - 1
                 
-                sa = 'student_activity'
-                query = f"""UPDATE {sa} 
-                            SET "student_id" = ?
-                            WHERE "student_id" = ?
-                            ;"""
-                val = (new_id, original_id)
-
-                sc = 'student_class'
-                query = f"""UPDATE {sc} 
-                            SET "student_id" = ?
-                            WHERE "student_id" = ?
-                            ;"""
-                val = (new_id, original_id)
-
-                ss = 'student_subject'
-                query = f"""UPDATE {ss} 
-                            SET "student_id" = ?
-                            WHERE "student_id" = ?
-                            ;"""
-                val = (new_id, original_id)
-                c.execute(query, val)
+                    query = f"""UPDATE {tblname} 
+                                SET "id" = ?
+                                WHERE "id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
+    
+                    sc = 'student_cca'
+                    query = f"""UPDATE {sc} 
+                                SET "student_id" = ?
+                                WHERE "student_id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
+                    
+                    sa = 'student_activity'
+                    query = f"""UPDATE {sa} 
+                                SET "student_id" = ?
+                                WHERE "student_id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
+                    
+                    sc = 'student_class'
+                    query = f"""UPDATE {sc} 
+                                SET "student_id" = ?
+                                WHERE "student_id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
+                    
+                    ss = 'student_subject'
+                    query = f"""UPDATE {ss} 
+                                SET "student_id" = ?
+                                WHERE "student_id" = ?
+                                ;"""
+                    val = (new_id, original_id)
+                    c.execute(query, val)
             conn.commit()
             conn.close()
         

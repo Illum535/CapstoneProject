@@ -37,9 +37,9 @@
                         {% if data['path'] == 'success' %}
                             <div class="input">
                                 {% if data['form_type'][key] == 'radio' %}
-                                    <span>{{data['checked'][key].title()}}</span>
+                                    <span>{{data['checked'][key]}}</span>
                                 {% else %}
-                                    <span>{{value.title()}}</span>
+                                    <span>{{value}}</span>
                                 {% endif %}
                             </div>
                         {% else %}
