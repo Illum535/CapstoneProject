@@ -16,6 +16,12 @@ coll = { # Backend implementation, creating collections for the different tables
 
 cca_act_class_ext = ['students'] # Extra headers used for /view webpages for cca, activity, class and subject
 
+reserved_keywords = [
+    '#',
+    '&',
+    '='
+]
+
 default_values = {
     'student_ccarole': 'member',
     'student_activityrole': 'participant'
@@ -431,8 +437,17 @@ def add_update(update_or_add, type, rqst): # add/update function for rendering a
             return redirect(f"/{update_or_add}_{type}")
             
         if 'success' in rqst.args: # if 'success' stage
+            result = False
+            
             if update_or_add == 'add': # if is /add
-                result = coll[type].add_record(dict(rqst.form)) # add the record
+                check = True
+                for field in dict(rqst.form).values():
+                    for keyword in reserved_keywords:
+                        if keyword in field:
+                            check = False
+
+                if check:
+                    result = coll[type].add_record(dict(rqst.form)) # add the record
                 
             else:
                 if '_' in type: # if multi table
@@ -450,9 +465,14 @@ def add_update(update_or_add, type, rqst): # add/update function for rendering a
                         old_record['level'] = rqst.form['level']
 
                 if old_record:
-                    result = coll[type].edit_record(old_record, data[1]) # edit the data
-                else:
-                    result = False
+                    check = True
+                    for field in data[1].values():
+                        for keyword in reserved_keywords:
+                            if keyword in field:
+                                check = False
+    
+                    if check:
+                        result = coll[type].edit_record(old_record, data[1]) # edit the data
 
             if not result: # if failed to add/update
                 return render_template('add_update.html', data = add_data(update_or_add, 'fail', type = type, form_data = dict(rqst.form))) # fail page
@@ -469,12 +489,27 @@ def view(type, rqst): # view function for rendering /view pages
             
             if len(rqst.args) > 1: # if multi table coll update
                 data = get_update_data('view', dict(rqst.form), True, args, type) # gets data for updating multi table coll data
-                coll[data[2]].edit_record(data[0], data[1]) # edits the data
+                check = True
+                for field in data[1].values():
+                    for keyword in reserved_keywords:
+                        if keyword in field:
+                            check = False
+
+                if check:
+                    coll[data[2]].edit_record(data[0], data[1]) # edits the data
                 
                 return redirect(f'/view_{type}?{args[0]}&{args[1]}') # redirects to the same page
 
             data = get_update_data('view', dict(rqst.form)) # gets data for updating single table coll data
-            coll[type].edit_record(data[0], data[1]) # edit the data
+            check = True
+            
+            for field in data[1].values():
+                for keyword in reserved_keywords:
+                    if keyword in field:
+                        check = False
+
+            if check:
+                coll[type].edit_record(data[0], data[1]) # edit the data
             
             if type == 'student':
                 old_record = {'student': data[0]['name'], 'class': data[0]['class']}
