@@ -31,7 +31,7 @@ class Collection:
         
             
         if self._tblname == 'CCA':
-            check = self.view_record(name)
+            check = self.view_record(record)
             if check == None:
                 id = self.add_id()
                 params = list(params)
@@ -45,7 +45,7 @@ class Collection:
                 return False
 
         elif self._tblname == 'Activity':
-            check = self.view_record(name)
+            check = self.view_record(record)
             if check == None:
                 id = self.add_id()
                 params = list(params)
@@ -59,7 +59,7 @@ class Collection:
                 return False
 
         elif self._tblname == 'Class':
-            check = self.view_record(name)
+            check = self.view_record(record)
             if check == None:
                 id = self.add_id()
                 params = list(params)
@@ -73,7 +73,7 @@ class Collection:
                 return False
 
         elif self._tblname == 'Student':
-            check = self.view_record(name)
+            check = self.view_record(record)
             if check == None:
                 id = self.add_id()
                 params = list(params)
@@ -855,7 +855,21 @@ class Collection:
             val = (new_details[0], new_details[1])
             c.execute(CHECK, val)
             check2 = c.fetchone()
-            if check2 == None:
+            data = self.view_all()
+            check = list(check)
+            s = check.pop(0)
+            check = tuple(check)
+            id = data.index(check) + 1
+            if old_record == new_record:
+                query = f"""UPDATE {self._tblname} 
+                            SET "id" = ?,
+                                "Name" = ?,
+                                "Level" = ?
+                            WHERE "Name" = ? AND "Level" = ?
+                            ;"""
+                val = (id, new_details[0], new_details[1], old_details[0], old_details[1])
+                
+            elif check2 == None:
 
                 query = f"""UPDATE {self._tblname} 
                             SET "id" = ?,
@@ -1152,10 +1166,10 @@ class Collection:
             val = (subject_data[0], )
             c.execute(query, val)
 
-            
+            self.reorder()
             conn.commit()
             conn.close()
-            self.reorder()
+            
             
         elif self._tblname == 'CCA':
             VIEW = f"""
