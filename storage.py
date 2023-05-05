@@ -610,7 +610,8 @@ class Collection:
         """
         c.execute(VIEW)
         result = c.fetchall()
-        print(result)
+        if result == None:
+            return False
 
         if self._tblname == 'student_class':
             
@@ -753,6 +754,7 @@ class Collection:
                 val = (x[1], )
                 c.execute(VIEW, val)
                 cca_data = c.fetchone()
+
 
                 data.append((student_data[1], cca_data[1], x[-1]))
 
