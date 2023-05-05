@@ -345,6 +345,8 @@ class Collection:
     
     def add_id(self):
         data = self.view_all()
+        if data == False:
+            return 1
         num = len(data)
         return num + 1
 
@@ -610,11 +612,9 @@ class Collection:
         """
         c.execute(VIEW)
         result = c.fetchall()
-<<<<<<< HEAD
-        if result == None:
+        print(result)
+        if result == []:
             return False
-=======
->>>>>>> 85bb6a3fc36ba3d9b4fc850f2166c20293e794b9
 
         if self._tblname == 'student_class':
             
@@ -883,7 +883,7 @@ class Collection:
                                 "Level" = ?
                             WHERE "Name" = ? AND "Level" = ?
                             ;"""
-                val = (check[0], new_details[0], new_details[1], old_details[0], old_details[1])
+                val = (id, new_details[0], new_details[1], old_details[0], old_details[1])
             else:
                 return False
 
