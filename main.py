@@ -234,21 +234,21 @@ def update_act():
     return add_update('update', 'student_activity', request)
 
 
-# if __name__ == "__main__":
-#    app.run('0.0.0.0')
-from storage import StudentClassCollection
-d = StudentClassCollection()
-d.add_record({'a':'2227','b':'J2'})
+if __name__ == "__main__":
+   app.run('0.0.0.0')
+# from storage import ClassCollection
+# d = ClassCollection()
+# d.delete_record({'c':'2327'})
 # import sqlite3
 # conn = sqlite3.connect('capstoneV6.db')
 # c = conn.cursor()
-# sc = 'student_class'
+# sc = 'Class'
 # query = f"""
 # DELETE FROM {sc}
-# WHERE "class_id" = ?;
+# WHERE "id" = ?;
 # """
-# val = (2, )
+# val = (1, )
 # c.execute(query, val)
 # conn.commit()
 # conn.close()
-print(d.view_all())
+# print(d.view_all())
