@@ -232,11 +232,13 @@ def view_data(type, main = '', foreign_table = '', level = ''): # Function for t
         
         if foreign_table == 'student': # special case for when foreign is student changing the convention for the key used in the coll dict
             form_index = f'{foreign_table}_{type}'
-            index = 1 
+            index = 1
+            main_index = 1
             
         else:
             form_index = f'{type}_{foreign_table}'
             index = 0 
+            main_index = 0
 
         header = list(add_form_type[form_index].keys()) # getting headers for the multi table data
         data['form_type'] = add_form_type[form_index] # adding form input types
@@ -249,15 +251,17 @@ def view_data(type, main = '', foreign_table = '', level = ''): # Function for t
             data['data'] = dict(zip(add_form_type[type].keys(), coll[type].view_record({'main': main}))) 
             
         header.pop(index)
-        
-        for record in records:
-            if main in record:
-                if not level or level in record:
+        if records:
+            for record in records:
+                if main in record[main_index] and (not level or level in record):
                     record = list(record)
                     record.pop(index)
                     data['records'].append(dict(zip(header, record))) # adding each record from the multi table coll corresponding to the main record
-
-        data['records'] = dict(enumerate(data['records'])) # numbering the records
+    
+            data['records'] = dict(enumerate(data['records'])) # numbering the records
+        else:
+            data['records'] = {}
+            
         data['no_of_headers'] = len(header)
         
         if 'level' in header: # special case for student_subject such that 'level' header is not considered editable
@@ -277,7 +281,9 @@ def view_data(type, main = '', foreign_table = '', level = ''): # Function for t
             
         records = coll[type].view_all() # getting data from coll
         value = ''
-        
+        if not records:
+            records = []
+            
         for record in records:
             record = dict(zip(header, record)) # convert record into a dict
             
