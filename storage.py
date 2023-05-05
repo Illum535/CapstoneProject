@@ -610,6 +610,7 @@ class Collection:
         """
         c.execute(VIEW)
         result = c.fetchall()
+        print(result)
 
         if self._tblname == 'student_class':
             
@@ -779,7 +780,7 @@ class Collection:
         
         if self._tblname == 'CCA':
             name = old_details[0]
-            check = self.view_record(name)
+            check = self.view_record(old_record)
             if check == None:
                 return False
             data = self.view_all()
@@ -794,7 +795,7 @@ class Collection:
 
         elif self._tblname == 'Class':
             name = old_details[0]
-            check = self.view_record(name)
+            check = self.view_record(old_record)
             if check == None:
                 return False
             data = self.view_all()
@@ -809,7 +810,7 @@ class Collection:
             
         elif self._tblname == 'Activity':
             name = old_details[0]
-            check = self.view_record(name)
+            check = self.view_record(old_record)
             if check == None:
                 return False
             data = self.view_all()
@@ -826,7 +827,7 @@ class Collection:
 
         elif self._tblname == 'Student':
             name = old_details[0]
-            check = self.view_record(name)
+            check = self.view_record(old_record)
             if check == None:
                 return False
             data = self.view_all()
@@ -1166,10 +1167,9 @@ class Collection:
             val = (subject_data[0], )
             c.execute(query, val)
 
-            self.reorder()
             conn.commit()
             conn.close()
-            
+            self.reorder()
             
         elif self._tblname == 'CCA':
             VIEW = f"""
