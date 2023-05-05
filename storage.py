@@ -944,13 +944,6 @@ class Collection:
             if oldact_data == None:
                 return False
 
-            VIEW = f"""SELECT * FROM {act} 
-                        WHERE "Name" = ?;"""
-            val = (new_details[-1], )
-            c.execute(VIEW, val)
-            newact_data = c.fetchone()
-            if newact_data == None:
-                return False
 
             VIEW = f"""SELECT * FROM {self._tblname} 
                         WHERE "cca_id" = ? AND "activity_id"=?;"""
@@ -962,7 +955,7 @@ class Collection:
 
             VIEW = f"""SELECT * FROM {self._tblname} 
                         WHERE "cca_id" = ? AND "activity_id"=?;"""
-            val = (cca_data[0], newact_data[0])
+            val = (cca_data[0], oldact_data[0])
             c.execute(VIEW, val)
             check = c.fetchone()
             if check != None:
@@ -972,7 +965,7 @@ class Collection:
                             "activity_id" = ?
                         WHERE "cca_id" = ? AND "activity_id"=?
                         ;"""
-            val = (cca_data[0], newact_data[0], cca_data[0], oldact_data[0])
+            val = (cca_data[0], oldact_data[0], cca_data[0], oldact_data[0])
 
 
         elif self._tblname == 'student_activity':
@@ -995,14 +988,6 @@ class Collection:
             if oldact_data == None:
                 return False
             
-            VIEW = f"""SELECT * FROM {act} 
-                        WHERE "Name" = ?;"""
-            val = (new_details[0], )
-            c.execute(VIEW, val)
-            newact_data = c.fetchone()
-            if newact_data == None:
-                return False
-
             VIEW = f"""SELECT * FROM {self._tblname} 
                         WHERE "student_id" = ? AND "activity_id"=?;"""
             val = (student_data[0], oldact_data[0])
@@ -1011,13 +996,6 @@ class Collection:
             if check == None:
                 return False
 
-            VIEW = f"""SELECT * FROM {self._tblname} 
-                        WHERE "student_id" = ? AND "activity_id"=?;"""
-            val = (student_data[0], newact_data[0])
-            c.execute(VIEW, val)
-            check = c.fetchone()
-            if check != None:
-                return False
             query = f"""UPDATE {self._tblname} 
                         SET "student_id" = ?,
                             "activity_id" = ?,
@@ -1027,7 +1005,7 @@ class Collection:
                             "Hours" = ?
                         WHERE "student_id" = ? AND "activity_id"=?
                         ;"""
-            val = (student_data[0], newact_data[0], new_details[1], new_details[2], new_details[3], new_details[4], student_data[0], oldact_data[0])
+            val = (student_data[0], oldact_data[0], new_details[1], new_details[2], new_details[3], new_details[4], student_data[0], oldact_data[0])
 
 
         elif self._tblname == 'student_subject':
@@ -1100,14 +1078,6 @@ class Collection:
             oldcca_data = c.fetchone()
             if oldcca_data == None:
                 return False
-                
-            VIEW = f"""SELECT * FROM {cca} 
-                        WHERE "Name" = ?;"""
-            val = (new_details[0], )
-            c.execute(VIEW, val)
-            newcca_data = c.fetchone()
-            if newcca_data == None:
-                return False
 
             VIEW = f"""SELECT * FROM {self._tblname} 
                         WHERE "student_id" = ? AND "cca_id" = ?;"""
@@ -1116,21 +1086,13 @@ class Collection:
             check = c.fetchone()
             if check == None:
                 return False
-
-            VIEW = f"""SELECT * FROM {self._tblname} 
-                        WHERE "student_id" = ? AND "cca_id" = ?;"""
-            val = (student_data[0], newcca_data[0])
-            c.execute(VIEW, val)
-            check = c.fetchone()
-            if check != None:
-                return False
             query = f"""UPDATE {self._tblname} 
                         SET "student_id" = ?,
                             "cca_id" = ?,
                             "Role" = ?
                         WHERE "student_id" = ? AND "cca_id" = ?
                         ;"""
-            val = (student_data[0], newcca_data[0], new_details[-1], student_data[0], oldcca_data[0])
+            val = (student_data[0], oldcca_data[0], new_details[-1], student_data[0], oldcca_data[0])
             
         c.execute(query, val)
         conn.commit()
